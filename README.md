@@ -4,6 +4,7 @@ This plugin was made as a robust alternative to podio's jquery.mentionsInput.
 
 Advantages over jquery.mentionsInput:
 - Many issues are solved
+- Input styles are copied to highlighter automatically
 - Text input support
 - Hidden-input with markuped text created automatically
 - Uses jQuery UI autocomplete
