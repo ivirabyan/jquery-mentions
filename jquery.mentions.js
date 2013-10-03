@@ -169,7 +169,7 @@
     MentionsInput.prototype.initValue = function() {
       var markedValue, match, mentionRE, pos, value;
       value = this.input.val();
-      mentionRE = /@\[([\w ]+)\]\(([:\w]+)\)/g;
+      mentionRE = /@\[([^\]]+)\]\(([^ \)]+)\)/g;
       markedValue = value.replace(mentionRE, this.mark('$1'));
       this.input.val(markedValue);
       match = mentionRE.exec(value);
@@ -250,7 +250,7 @@
         marked = this.mark(mention.name);
         index = value.indexOf(marked);
         if (index === -1) {
-          this.mentions = this.mentions.splice(i, 1);
+          this.mentions = this.mentions.splice(i + 1, 1);
         } else {
           mention.pos = index;
         }

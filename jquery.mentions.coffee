@@ -21,7 +21,7 @@ Selection =
 
 settings =
 	source: []
-	delay: 0,
+	delay: 0
 	trigger: '@'
 
 $.widget( "ui.areacomplete", $.ui.autocomplete,
@@ -137,7 +137,7 @@ class MentionsInput
 
 	initValue: ->
 		value = @input.val()
-		mentionRE = /@\[([\w ]+)\]\(([:\w]+)\)/g
+		mentionRE = /@\[([^\]]+)\]\(([^ \)]+)\)/g
 		markedValue = value.replace(mentionRE, @mark('$1'))
 		@input.val(markedValue)
 
@@ -198,7 +198,7 @@ class MentionsInput
 			marked = @mark(mention.name)
 			index = value.indexOf(marked)
 			if index == -1
-				@mentions = @mentions.splice(i, 1)
+				@mentions = @mentions.splice(i + 1, 1)
 			else
 				mention.pos = index
 			value = @replaceWithSpaces(value, marked)
