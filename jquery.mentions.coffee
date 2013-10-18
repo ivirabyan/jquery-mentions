@@ -91,8 +91,7 @@ class MentionsInput
 
 	constructor: (@input, options) ->
 		@mentions = []
-		@options = $.extend(settings, options)
-
+		@options = $.extend({}, settings, options)
 		@input.addClass('input')
 
 		container = $('<div>', {'class': 'mentions-input'})
@@ -114,26 +113,30 @@ class MentionsInput
 		@initValue()
 		@initEvents()
 
-	initEvents: ->
-		@input.on('input', @update)
-		@input.on('change', @update)
+	destroy: ->
+		@input.off(".#{namespace}").attr('name', @hidden.attr('name'))
+		@container.replaceWith(@input)
 
-		@input.on('keydown', (event) =>
+	initEvents: ->
+		@input.on("input.#{namespace}", @update)
+		@input.on("change.#{namespace}", @update)
+
+		@input.on("keydown.#{namespace}", (event) =>
 			setTimeout((=> @handleLeftRight(event)), 10)
 		)
 
 		tagName = @input.prop("tagName")
 		if tagName == "INPUT"
-			@input.on('focus', =>
+			@input.on("focus.#{namespace}", =>
 				@interval = setInterval(@updateHScroll, 10)
 			)
-			@input.on('blur', =>
+			@input.on("blur.#{namespace}", =>
 				setTimeout(@updateHScroll, 10)
 				clearInterval(@interval)
 			)
 		else if tagName == "TEXTAREA"
-			@input.on('scroll', (=> setTimeout(@updateVScroll, 10)))
-			@input.on('resize', (=> setTimeout(@updateVScroll, 10)))
+			@input.on("scroll.#{namespace}", (=> setTimeout(@updateVScroll, 10)))
+			@input.on("resize.#{namespace}", (=> setTimeout(@updateVScroll, 10)))
 
 	initValue: ->
 		value = @input.val()
@@ -160,7 +163,7 @@ class MentionsInput
 	createHighlighter: ->
 		highlighter = $('<div>', {'class': 'highlighter'})
 		highlighter.prependTo(@container)
-		
+
 		content = $('<div>', {'class': 'highlighter-content'})
 		highlighter.append(content)
 
@@ -181,7 +184,7 @@ class MentionsInput
 			delta = if event.keyCode == Key.LEFT then -1 else 1
 			deltaStart = if value.charAt(sel.start) == @marker then delta else 0
 			deltaEnd = if value.charAt(sel.end) == @marker then delta else 0
-			
+
 			if deltaStart or deltaEnd
 				Selection.set(@input, sel.start + deltaStart, sel.end + deltaEnd)
 
@@ -194,23 +197,24 @@ class MentionsInput
 
 	updateMentions: =>
 		value = @input.val()
-		for mention, i in @mentions[..]
-			marked = @mark(mention.name)
-			index = value.indexOf(marked)
-			if index == -1
-				@mentions = @mentions.splice(i + 1, 1)
-			else
-				mention.pos = index
-			value = @replaceWithSpaces(value, marked)
+		if value
+			for mention, i in @mentions[..]
+				marked = @mark(mention.name)
+				index = value.indexOf(marked)
+				if index == -1
+					@mentions = @mentions.splice(i + 1, 1)
+				else
+					mention.pos = index
+				value = @replaceWithSpaces(value, marked)
 
-		# remove orphan markers
-		newval = @input.val()
-		while (index = value.indexOf(@marker)) >= 0
-			value = @cutChar(value, index)
-			newval = @cutChar(newval, index)
-		selection = Selection.get(@input)
-		@input.val(newval)
-		Selection.set(@input, selection.start)
+			# remove orphan markers
+			newval = @input.val()
+			while (index = value.indexOf(@marker)) >= 0
+				value = @cutChar(value, index)
+				newval = @cutChar(newval, index)
+			selection = Selection.get(@input)
+			@input.val(newval)
+			Selection.set(@input, selection.start)
 
 	addMention: (mention) =>
 		@mentions.push(mention)
@@ -247,6 +251,8 @@ class MentionsInput
 
 $.fn[namespace] = (options) ->
 	this.each(->
-		$(this).data('mentionsInput', new MentionsInput($(this), options))
+		if options == 'destroy'
+			$(this).data('mentionsInput').destroy()
+		else
+			$(this).data('mentionsInput', new MentionsInput($(this), options))
 	)
-		

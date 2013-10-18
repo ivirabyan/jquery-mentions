@@ -116,7 +116,7 @@
       this.mark = __bind(this.mark, this);
       this.handleLeftRight = __bind(this.handleLeftRight, this);
       this.mentions = [];
-      this.options = $.extend(settings, options);
+      this.options = $.extend({}, settings, options);
       this.input.addClass('input');
       container = $('<div>', {
         'class': 'mentions-input'
@@ -137,30 +137,35 @@
       this.initEvents();
     }
 
+    MentionsInput.prototype.destroy = function() {
+      this.input.off("." + namespace).attr('name', this.hidden.attr('name'));
+      return this.container.replaceWith(this.input);
+    };
+
     MentionsInput.prototype.initEvents = function() {
       var tagName,
         _this = this;
-      this.input.on('input', this.update);
-      this.input.on('change', this.update);
-      this.input.on('keydown', function(event) {
+      this.input.on("input." + namespace, this.update);
+      this.input.on("change." + namespace, this.update);
+      this.input.on("keydown." + namespace, function(event) {
         return setTimeout((function() {
           return _this.handleLeftRight(event);
         }), 10);
       });
       tagName = this.input.prop("tagName");
       if (tagName === "INPUT") {
-        this.input.on('focus', function() {
+        this.input.on("focus." + namespace, function() {
           return _this.interval = setInterval(_this.updateHScroll, 10);
         });
-        return this.input.on('blur', function() {
+        return this.input.on("blur." + namespace, function() {
           setTimeout(_this.updateHScroll, 10);
           return clearInterval(_this.interval);
         });
       } else if (tagName === "TEXTAREA") {
-        this.input.on('scroll', (function() {
+        this.input.on("scroll." + namespace, (function() {
           return setTimeout(_this.updateVScroll, 10);
         }));
-        return this.input.on('resize', (function() {
+        return this.input.on("resize." + namespace, (function() {
           return setTimeout(_this.updateVScroll, 10);
         }));
       }
@@ -244,26 +249,28 @@
     MentionsInput.prototype.updateMentions = function() {
       var i, index, marked, mention, newval, selection, value, _i, _len, _ref;
       value = this.input.val();
-      _ref = this.mentions.slice(0);
-      for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
-        mention = _ref[i];
-        marked = this.mark(mention.name);
-        index = value.indexOf(marked);
-        if (index === -1) {
-          this.mentions = this.mentions.splice(i + 1, 1);
-        } else {
-          mention.pos = index;
+      if (value) {
+        _ref = this.mentions.slice(0);
+        for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+          mention = _ref[i];
+          marked = this.mark(mention.name);
+          index = value.indexOf(marked);
+          if (index === -1) {
+            this.mentions = this.mentions.splice(i + 1, 1);
+          } else {
+            mention.pos = index;
+          }
+          value = this.replaceWithSpaces(value, marked);
         }
-        value = this.replaceWithSpaces(value, marked);
+        newval = this.input.val();
+        while ((index = value.indexOf(this.marker)) >= 0) {
+          value = this.cutChar(value, index);
+          newval = this.cutChar(newval, index);
+        }
+        selection = Selection.get(this.input);
+        this.input.val(newval);
+        return Selection.set(this.input, selection.start);
       }
-      newval = this.input.val();
-      while ((index = value.indexOf(this.marker)) >= 0) {
-        value = this.cutChar(value, index);
-        newval = this.cutChar(newval, index);
-      }
-      selection = Selection.get(this.input);
-      this.input.val(newval);
-      return Selection.set(this.input, selection.start);
     };
 
     MentionsInput.prototype.addMention = function(mention) {
@@ -324,7 +331,11 @@
 
   $.fn[namespace] = function(options) {
     return this.each(function() {
-      return $(this).data('mentionsInput', new MentionsInput($(this), options));
+      if (options === 'destroy') {
+        return $(this).data('mentionsInput').destroy();
+      } else {
+        return $(this).data('mentionsInput', new MentionsInput($(this), options));
+      }
     });
   };
 
