@@ -29,6 +29,9 @@ var data = [
 ];
 
 $('textarea').mentionsInput({source: data});
+
+// Manually add mention to the textarea
+$('textarea').mentionsInput('append', {name: 'alex', uid: 'user:1'});
 ```
 
 
