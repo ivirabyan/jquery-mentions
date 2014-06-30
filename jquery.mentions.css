@@ -25,7 +25,7 @@
 }
 
 .mentions-input .highlighter-content strong {
-  font-weight:normal;
+  font-weight: inherit;
   background-color: #a3bcea;
   display: inline;
   filter: progid:DXImageTransform.Microsoft.Alpha(opacity=0);

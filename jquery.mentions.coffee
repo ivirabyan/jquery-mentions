@@ -6,8 +6,7 @@ mimicProperties = [
 	'marginTop', 'marginBottom', 'marginLeft', 'marginRight',
 	'paddingTop', 'paddingBottom', 'paddingLeft', 'paddingRight',
 	'borderTopWidth', 'borderLeftWidth', 'borderBottomWidth', 'borderRightWidth',
-	'fontSize', 'fontStyle', 'fontFamily', 'lineHeight', 'height',
-	'backgroundColor'
+	'fontSize', 'fontStyle', 'fontFamily', 'fontWeight', 'lineHeight', 'height', 'boxSizing'
 ]
 
 Selection =
@@ -20,7 +19,6 @@ Selection =
 
 
 settings =
-	source: []
 	delay: 0
 	trigger: '@'
 
@@ -46,7 +44,6 @@ $.widget( "ui.areacomplete", $.ui.autocomplete,
 		after = value.substring(@end)
 		newval = ui.item.value + @options.suffix
 		value = before + newval + after
-
 		if @overriden.select
 			ui.item.pos = @start
 			if @overriden.select(event, ui) == false
@@ -90,94 +87,100 @@ class MentionsInput
 	marker: '\uFEFF',
 
 	constructor: (@input, options) ->
-		@mentions = []
 		@options = $.extend({}, settings, options)
+
+		if not @options.source
+			@options.source = @input.data('source') or []
+
+		@mentions = []
 		@input.addClass('input')
 
 		container = $('<div>', {'class': 'mentions-input'})
 		container.css('display', @input.css('display'))
 		@container = @input.wrapAll(container).parent()
 
-		@hidden = @createHidden()
-		@highlighter = @createHighlighter()
+		@hidden = @_createHidden()
+		@highlighter = @_createHighlighter()
 		@highlighterContent = $('div', @highlighter)
 
-		@autocomplete = @input.areacomplete(
-			matcher: @getMatcher(),
-			suffix: @marker,
-			select: @onSelect,
-			source: @options.source,
-			delay: @options.delay,
+		@input.focus(=>
+			@highlighter.addClass('focus')
+		).blur(=>
+			@highlighter.removeClass('focus')
 		)
 
-		@initValue()
-		@initEvents()
+		@autocomplete = @input.areacomplete(
+			matcher: @_getMatcher(),
+			suffix: @marker,
+			select: @_onSelect,
+			source: @options.source,
+			delay: @options.delay,
+			appendTo: @input.parent()
+		)
 
-	destroy: ->
-		@input.off(".#{namespace}").attr('name', @hidden.attr('name'))
-		@container.replaceWith(@input)
+		@_initValue()
+		@_initEvents()
 
-	initEvents: ->
-		@input.on("input.#{namespace}", @update)
-		@input.on("change.#{namespace}", @update)
+	_initEvents: ->
+		@input.on("input.#{namespace}", @_update)
+		@input.on("change.#{namespace}", @_update)
 
 		@input.on("keydown.#{namespace}", (event) =>
-			setTimeout((=> @handleLeftRight(event)), 10)
+			setTimeout((=> @_handleLeftRight(event)), 10)
 		)
 
 		tagName = @input.prop("tagName")
 		if tagName == "INPUT"
 			@input.on("focus.#{namespace}", =>
-				@interval = setInterval(@updateHScroll, 10)
+				@interval = setInterval(@_updateHScroll, 10)
 			)
 			@input.on("blur.#{namespace}", =>
-				setTimeout(@updateHScroll, 10)
+				setTimeout(@_updateHScroll, 10)
 				clearInterval(@interval)
 			)
 		else if tagName == "TEXTAREA"
-			@input.on("scroll.#{namespace}", (=> setTimeout(@updateVScroll, 10)))
-			@input.on("resize.#{namespace}", (=> setTimeout(@updateVScroll, 10)))
+			@input.on("scroll.#{namespace}", (=> setTimeout(@_updateVScroll, 10)))
+			@input.on("resize.#{namespace}", (=> setTimeout(@_updateVScroll, 10)))
 
-	initValue: ->
+	_initValue: ->
 		value = @input.val()
 		mentionRE = /@\[([^\]]+)\]\(([^ \)]+)\)/g
-		markedValue = value.replace(mentionRE, @mark('$1'))
+		markedValue = value.replace(mentionRE, @_mark('$1'))
 		@input.val(markedValue)
 
 		match = mentionRE.exec(value)
 		while match
-			@addMention(
+			@_addMention(
 				name: match[1],
 				uid: match[2],
-				pos = markedValue.indexOf(@mark(match[1]))
+				pos = markedValue.indexOf(@_mark(match[1]))
 			)
 			match = mentionRE.exec(value)
-		@updateValue()
+		@_updateValue()
 
-	createHidden: ->
+	_createHidden: ->
 		hidden = $('<input>', {type: 'hidden', name: @input.attr('name')})
 		hidden.appendTo(@container)
 		@input.removeAttr('name')
 		return hidden
 
-	createHighlighter: ->
+	_createHighlighter: ->
 		highlighter = $('<div>', {'class': 'highlighter'})
 		highlighter.prependTo(@container)
 
 		content = $('<div>', {'class': 'highlighter-content'})
 		highlighter.append(content)
 
+		@input.css('backgroundColor', 'transparent')
 		for property in mimicProperties
 			highlighter.css(property, @input.css(property))
-
-		@input.css('backgroundColor', 'transparent')
 		return highlighter
 
-	getMatcher: ->
+	_getMatcher: ->
 		allowedChars = '[^' + @options.trigger + ']'
 		return '\\B[' + @options.trigger + '](' + allowedChars + '{0,20})'
 
-	handleLeftRight: (event) =>
+	_handleLeftRight: (event) =>
 		if event.keyCode == Key.LEFT or event.keyCode == Key.RIGHT
 			value = @input.val()
 			sel = Selection.get(@input)
@@ -188,71 +191,94 @@ class MentionsInput
 			if deltaStart or deltaEnd
 				Selection.set(@input, sel.start + deltaStart, sel.end + deltaEnd)
 
-	mark: (name) =>
+	_mark: (name) =>
 		name + @marker
 
-	update: =>
-		@updateMentions()
-		@updateValue()
+	_update: =>
+		@_updateMentions()
+		@_updateValue()
 
-	updateMentions: =>
+	_updateMentions: =>
 		value = @input.val()
 		if value
 			for mention, i in @mentions[..]
-				marked = @mark(mention.name)
+				marked = @_mark(mention.name)
 				index = value.indexOf(marked)
 				if index == -1
-					@mentions = @mentions.splice(i + 1, 1)
+					@mentions.splice(i, 1)
 				else
 					mention.pos = index
-				value = @replaceWithSpaces(value, marked)
+				value = @_replaceWithSpaces(value, marked)
 
 			# remove orphan markers
 			newval = @input.val()
 			while (index = value.indexOf(@marker)) >= 0
-				value = @cutChar(value, index)
-				newval = @cutChar(newval, index)
+				value = @_cutChar(value, index)
+				newval = @_cutChar(newval, index)
 			selection = Selection.get(@input)
 			@input.val(newval)
 			Selection.set(@input, selection.start)
 
-	addMention: (mention) =>
+	_addMention: (mention) =>
 		@mentions.push(mention)
 
-	onSelect: (event, ui) =>
-		@addMention(name: ui.item.value, pos: ui.item.pos, uid: ui.item.uid)
+	_onSelect: (event, ui) =>
+		@_addMention(name: ui.item.value, pos: ui.item.pos, uid: ui.item.uid)
 
-	updateValue: =>
+	_updateValue: =>
 		value = hlContent = @input.val()
-
 		for mention in @mentions
-			markedName = @mark(mention.name)
+			markedName = @_mark(mention.name)
 			hlContent = hlContent.replace(markedName, "<strong>#{mention.name}</strong>")
 			value = value.replace(markedName, "@[#{mention.name}](#{mention.uid})")
 
 		@hidden.val(value)
 		@highlighterContent.html(hlContent)
 
-	updateVScroll: =>
+	_updateVScroll: =>
 		scrollTop = @input.scrollTop()
 		@highlighterContent.css(top: "-#{scrollTop}px")
 		@highlighter.height(@input.height())
 
-	updateHScroll: =>
+	_updateHScroll: =>
 		scrollLeft = @input.scrollLeft()
 		@highlighterContent.css(left: "-#{scrollLeft}px")
 		@highlighterContent.width(@input.get(0).scrollWidth)
 
-	replaceWithSpaces: (value, what) ->
+	_replaceWithSpaces: (value, what) ->
 		return value.replace(what, Array(what.length).join(' '))
 
-	cutChar: (value, index) ->
+	_cutChar: (value, index) ->
 		return value.substring(0, index) + value.substring(index + 1)
 
-$.fn[namespace] = (options) ->
+	append: (pieces...) ->
+		value = @input.val()
+		for piece in pieces
+			if typeof piece == 'string'
+				value += piece
+			else
+				@_addMention({name: piece.name, uid: piece.uid, pos: value.length})
+				value += @_mark(piece.name)
+		@input.val(value)
+		@_updateValue()
+
+	clear: ->
+		@input.val('')
+		@_update()
+
+	destroy: ->
+		@input.areacomplete("destroy")
+		@input.off(".#{namespace}").attr('name', @hidden.attr('name'))
+		@container.replaceWith(@input)
+
+$.fn[namespace] = (options, args...) ->
 	this.each(->
-		if options == 'destroy'
-			$(this).data('mentionsInput').destroy()
+		if typeof options == 'string' and options.charAt(0) != '_'
+			instance = $(this).data('mentionsInput')
+			console.log('hello', options, instance, options in instance)
+			if options of instance
+				console.log('hi tehre')
+				instance[options](args...)
 		else
 			$(this).data('mentionsInput', new MentionsInput($(this), options))
 	)
