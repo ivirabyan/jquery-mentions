@@ -275,9 +275,7 @@ $.fn[namespace] = (options, args...) ->
 	this.each(->
 		if typeof options == 'string' and options.charAt(0) != '_'
 			instance = $(this).data('mentionsInput')
-			console.log('hello', options, instance, options in instance)
 			if options of instance
-				console.log('hi tehre')
 				instance[options](args...)
 		else
 			$(this).data('mentionsInput', new MentionsInput($(this), options))
