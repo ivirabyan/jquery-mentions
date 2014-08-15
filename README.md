@@ -29,17 +29,34 @@ var data = [
 ];
 
 $('textarea').mentionsInput({source: data});
+```
 
-// Manually add mention to the textarea
+Calling a method:
+```
+$('textarea').mentionsInput('getValue');
 $('textarea').mentionsInput('append', {name: 'alex', uid: 'user:1'});
 ```
 
-
 ## Options
 
-### source
+#### source
   Data source for the autocomplete. See [jQuery Autocomplete API](http://api.jqueryui.com/autocomplete/#option-source) for available values.
-### delay
+#### delay
   Delay for autocomplete to start searching. Default value is 0. More info in [jQuery Autocomplete API](http://api.jqueryui.com/autocomplete/#option-delay)
-### trigger
+#### trigger
   Char which trigger autocomplete, default value is '@'
+
+
+## Methods
+
+#### getValue()
+  Returns marked up value.
+
+#### append(pieces)
+  Appends pieces of text to the input. Pieces is an array, containing a text or a mention object. For example `['Hey', {name: 'alex', uid: 'user:1'}]`
+
+#### clear()
+  Clears value. Note that you must use this method insted of manually clearing value of the input
+
+#### destroy()
+  Destroys current instance of the plugin
