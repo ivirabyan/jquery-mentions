@@ -262,6 +262,9 @@ class MentionsInput
 		@input.val(value)
 		@_updateValue()
 
+	getValue: ->
+		return @hidden.val()
+
 	clear: ->
 		@input.val('')
 		@_update()
@@ -272,11 +275,14 @@ class MentionsInput
 		@container.replaceWith(@input)
 
 $.fn[namespace] = (options, args...) ->
+	returnValue = this
+
 	this.each(->
 		if typeof options == 'string' and options.charAt(0) != '_'
 			instance = $(this).data('mentionsInput')
 			if options of instance
-				instance[options](args...)
+				returnValue = instance[options](args...)
 		else
 			$(this).data('mentionsInput', new MentionsInput($(this), options))
 	)
+	return returnValue
