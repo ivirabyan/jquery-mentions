@@ -15,7 +15,8 @@ Selection =
 		end: input[0].selectionEnd
 
 	set: (input, start, end=start) ->
-		input[0].setSelectionRange(start, end)
+		input[0].selectStart = start
+		input[0].selectionEnd = end
 
 
 settings =

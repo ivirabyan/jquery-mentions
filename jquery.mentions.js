@@ -24,7 +24,8 @@
       if (end == null) {
         end = start;
       }
-      return input[0].setSelectionRange(start, end);
+      input[0].selectStart = start;
+      return input[0].selectionEnd = end;
     }
   };
 
