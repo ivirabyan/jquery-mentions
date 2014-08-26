@@ -216,9 +216,11 @@ class MentionsInput
 			while (index = value.indexOf(@marker)) >= 0
 				value = @_cutChar(value, index)
 				newval = @_cutChar(newval, index)
-			selection = Selection.get(@input)
-			@input.val(newval)
-			Selection.set(@input, selection.start)
+
+			if value != newval
+				selection = Selection.get(@input)
+				@input.val(newval)
+				Selection.set(@input, selection.start)
 
 	_addMention: (mention) =>
 		@mentions.push(mention)

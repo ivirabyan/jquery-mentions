@@ -285,9 +285,11 @@
           value = this._cutChar(value, index);
           newval = this._cutChar(newval, index);
         }
-        selection = Selection.get(this.input);
-        this.input.val(newval);
-        return Selection.set(this.input, selection.start);
+        if (value !== newval) {
+          selection = Selection.get(this.input);
+          this.input.val(newval);
+          return Selection.set(this.input, selection.start);
+        }
       }
     };
 
