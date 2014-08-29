@@ -558,6 +558,26 @@
       });
     };
 
+    MentionsContenteditable.prototype.append = function() {
+      var piece, pieces, value, _i, _len;
+      pieces = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      value = this.input.html();
+      for (_i = 0, _len = pieces.length; _i < _len; _i++) {
+        piece = pieces[_i];
+        if (typeof piece === 'string') {
+          value += piece;
+        } else {
+          value += mentionTpl({
+            value: piece.name,
+            uid: piece.uid
+          }) + this.marker;
+        }
+      }
+      this.input.html(value);
+      this._initEvents();
+      return this.input.focus();
+    };
+
     MentionsContenteditable.prototype.getValue = function() {
       var value;
       value = this.input.clone();

@@ -377,8 +377,6 @@ class MentionsContenteditable extends MentionsBase
         selection.addRange range
         return mention
 
-
-
     _initEvents: ->
         @input.find(@selector).each (i, el) =>
             @_watch el
@@ -414,8 +412,16 @@ class MentionsContenteditable extends MentionsBase
                 sel.removeAllRanges()
                 sel.addRange range
 
-    # TODO
-    # append: (pieces...) ->
+    append: (pieces...) ->
+        value = @input.html()
+        for piece in pieces
+            if typeof piece == 'string'
+                value += piece
+            else
+                value += mentionTpl(value: piece.name, uid: piece.uid) + @marker
+        @input.html value
+        @_initEvents()
+        @input.focus()
 
     getValue: ->
         value = @input.clone()
