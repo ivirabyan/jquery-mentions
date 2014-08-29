@@ -48,8 +48,6 @@ $.widget( "ui.editablecomplete", $.ui.autocomplete,
         @options.select = $.proxy(@selectCallback, @)
         @options.focus = $.proxy(@focusCallback, @)
 
-        @marker = $("<span id='__autocomplete-marker'/>")[0]
-
         $.ui.autocomplete.prototype._create.call(@)
         @matcher = new RegExp(@options.matcher + '$')
 
@@ -83,23 +81,9 @@ $.widget( "ui.editablecomplete", $.ui.autocomplete,
 
             @start = match.index
             @end = match.index + match[0].length
-
-            if @options.showAtCaret
-                range = sel.getRangeAt 0
-                boundary = range.cloneRange()
-                boundary.setStart node, @start
-                boundary.collapse true
-                boundary.insertNode @marker
-                boundary.detach()
-                @options.position.of = @marker
-
+            @_setDropdownPosition node
             value = match[1]
         return $.ui.autocomplete.prototype.search.call(@, value, event)
-
-    close: (event) ->
-        @marker.remove()
-        @element.change()
-        return $.ui.autocomplete.prototype.close.call(@, event)
 
     _renderItem: (ul, item) ->
         li = $('<li>')
@@ -108,6 +92,15 @@ $.widget( "ui.editablecomplete", $.ui.autocomplete,
             anchor.append("<img src=\"#{item.image}\" />")
         anchor.append(item.value)
         return li.appendTo(ul)
+
+    _setDropdownPosition: (node) ->
+        if @options.showAtCaret
+            boundary = document.createRange()
+            boundary.setStart node, @start
+            boundary.collapse true
+            rect = boundary.getClientRects()[0]
+            @options.position.of = document
+            @options.position.at = "left+#{rect.left} top+#{rect.top+rect.height}"
 )
 
 
@@ -129,7 +122,7 @@ class MentionsContenteditable
             select: @_onSelect,
             source: @options.source,
             delay: @options.delay,
-            showAtCaret: true
+            showAtCaret: @options.showAtCaret
         )
         @_initValue()
         @_initEvents()
