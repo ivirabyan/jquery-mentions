@@ -31,6 +31,12 @@ var data = [
 $('textarea').mentionsInput({source: data});
 ```
 
+Remote datasource:
+
+```
+$('textarea').mentionsInput({source: 'http://example.com'})
+```
+
 Calling a method:
 ```
 $('textarea').mentionsInput('getValue');
