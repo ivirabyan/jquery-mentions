@@ -119,8 +119,10 @@ $.widget( "ui.editablecomplete", $.ui.areacomplete,
             boundary.setStart node, @start
             boundary.collapse true
             rect = boundary.getClientRects()[0]
+            posX = rect.left + window.scrollX
+            posY = rect.top + rect.height + window.scrollY
             @options.position.of = document
-            @options.position.at = "left+#{rect.left} top+#{rect.top+rect.height}"
+            @options.position.at = "left+#{posX} top+#{posY}"
 )
 
 
@@ -351,7 +353,7 @@ class MentionsContenteditable extends MentionsBase
         @_initEvents()
 
     mentionTpl = (mention) ->
-        "<span data-mention=\"#{mention.uid}\">#{mention.value}</span>"
+        "<strong data-mention=\"#{mention.uid}\">#{mention.value}</strong>"
 
     insertMention = (mention, pos, suffix) ->
         selection = window.getSelection()
@@ -395,6 +397,7 @@ class MentionsContenteditable extends MentionsBase
 
     _onSelect: (event, ui) =>
         @_addMention ui.item
+        @input.trigger "change.#{namespace}"
         return false
 
     _watch: (mention) ->
@@ -451,7 +454,7 @@ $.fn[namespace] = (options, args...) ->
             if options of instance
                 returnValue = instance[options](args...)
         else
-            if this.isContentEditable
+            if this.isContentEditable or this.contentEditable == "true"
                 $(this).data 'mentionsInput', new MentionsContenteditable($(this), options)
             else
                 $(this).data 'mentionsInput', new MentionsInput($(this), options)
