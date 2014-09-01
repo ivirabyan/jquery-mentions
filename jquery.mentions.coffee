@@ -415,6 +415,11 @@ class MentionsContenteditable extends MentionsBase
                 sel.removeAllRanges()
                 sel.addRange range
 
+    update: ->
+        @_initValue()
+        @_initEvents()
+        @input.focus()
+
     append: (pieces...) ->
         value = @input.html()
         for piece in pieces
