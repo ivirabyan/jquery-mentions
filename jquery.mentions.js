@@ -635,10 +635,10 @@
           return returnValue = instance[options].apply(instance, args);
         }
       } else {
-        if (this.isContentEditable && this.contentEditable === "true") {
-          return $(this).data('mentionsInput', new MentionsContenteditable($(this), options));
-        } else {
+        if (this.tagName in ['INPUT', 'TEXTAREA']) {
           return $(this).data('mentionsInput', new MentionsInput($(this), options));
+        } else if (this.contentEditable === "true") {
+          return $(this).data('mentionsInput', new MentionsContenteditable($(this), options));
         }
       }
     });
