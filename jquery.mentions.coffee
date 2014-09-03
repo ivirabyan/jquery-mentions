@@ -162,6 +162,7 @@ class MentionsInput extends MentionsBase
 
         @hidden = @_createHidden()
         @highlighter = @_createHighlighter()
+        @_setHighligherStyle()
         @highlighterContent = $('div', @highlighter)
 
         @input.focus(=>
@@ -185,8 +186,7 @@ class MentionsInput extends MentionsBase
     
 
     _initEvents: ->
-        @input.on("input.#{namespace}", @_update)
-        @input.on("change.#{namespace}", @_update)
+        @input.on("input.#{namespace} change.#{namespace}", @_update)
 
         @input.on("keydown.#{namespace}", (event) =>
             setTimeout((=> @_handleLeftRight(event)), 10)
@@ -204,6 +204,9 @@ class MentionsInput extends MentionsBase
         else if tagName == "TEXTAREA"
             @input.on("scroll.#{namespace}", (=> setTimeout(@_updateVScroll, 10)))
             @input.on("resize.#{namespace}", (=> setTimeout(@_updateVScroll, 10)))
+
+        $(window).on "load", @_setHighligherStyle
+        @input.on "focus.#{namespace} blur.#{namespace}", @_setHighligherStyle
 
     _initValue: ->
         value = @input.val()
@@ -229,15 +232,14 @@ class MentionsInput extends MentionsBase
 
     _createHighlighter: ->
         highlighter = $('<div>', {'class': 'highlighter'})
-        highlighter.prependTo(@container)
-
         content = $('<div>', {'class': 'highlighter-content'})
-        highlighter.append(content)
-
-        @input.css('backgroundColor', 'transparent')
-        for property in mimicProperties
-            highlighter.css(property, @input.css(property))
+        highlighter.append(content).prependTo(@container)
+        @input.css 'backgroundColor', 'transparent'
         return highlighter
+
+    _setHighligherStyle: =>
+        for property in mimicProperties
+            @highlighter.css property, @input.css(property)
 
     _handleLeftRight: (event) =>
         if event.keyCode == Key.LEFT or event.keyCode == Key.RIGHT
