@@ -145,8 +145,8 @@
         boundary.setStart(node, this.start);
         boundary.collapse(true);
         rect = boundary.getClientRects()[0];
-        posX = rect.left + window.scrollX;
-        posY = rect.top + rect.height + window.scrollY;
+        posX = rect.left + (window.scrollX || window.pageXOffset);
+        posY = rect.top + rect.height + (window.scrollY || window.pageYOffset);
         this.options.position.of = document;
         return this.options.position.at = "left+" + posX + " top+" + posY;
       }
@@ -540,6 +540,7 @@
 
     MentionsContenteditable.prototype._onSelect = function(event, ui) {
       this._addMention(ui.item);
+      this.input.trigger("change." + namespace);
       return false;
     };
 
@@ -550,7 +551,8 @@
           text = e.target;
           sel = window.getSelection();
           offset = sel.focusOffset;
-          $(mention).replaceWith(text);
+          $(text).insertBefore(mention);
+          $(mention).remove();
           range = document.createRange();
           range.setStart(text, offset);
           range.collapse(true);
@@ -558,6 +560,12 @@
           return sel.addRange(range);
         }
       });
+    };
+
+    MentionsContenteditable.prototype.update = function() {
+      this._initValue();
+      this._initEvents();
+      return this.input.focus();
     };
 
     MentionsContenteditable.prototype.append = function() {
@@ -619,7 +627,7 @@
           return returnValue = instance[options].apply(instance, args);
         }
       } else {
-        if (this.isContentEditable || this.contentEditable === "true") {
+        if (this.isContentEditable && this.contentEditable === "true") {
           return $(this).data('mentionsInput', new MentionsContenteditable($(this), options));
         } else {
           return $(this).data('mentionsInput', new MentionsInput($(this), options));

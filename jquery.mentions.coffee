@@ -119,8 +119,8 @@ $.widget( "ui.editablecomplete", $.ui.areacomplete,
             boundary.setStart node, @start
             boundary.collapse true
             rect = boundary.getClientRects()[0]
-            posX = rect.left + window.scrollX
-            posY = rect.top + rect.height + window.scrollY
+            posX = rect.left + (window.scrollX || window.pageXOffset)
+            posY = rect.top + rect.height + (window.scrollY || window.pageYOffset)
             @options.position.of = document
             @options.position.at = "left+#{posX} top+#{posY}"
 )
@@ -407,7 +407,8 @@ class MentionsContenteditable extends MentionsBase
                 sel = window.getSelection()
                 offset = sel.focusOffset
 
-                $(mention).replaceWith text
+                $(text).insertBefore mention
+                $(mention).remove()
 
                 range = document.createRange()
                 range.setStart text, offset
@@ -459,7 +460,7 @@ $.fn[namespace] = (options, args...) ->
             if options of instance
                 returnValue = instance[options](args...)
         else
-            if this.isContentEditable or this.contentEditable == "true"
+            if this.isContentEditable and this.contentEditable == "true"
                 $(this).data 'mentionsInput', new MentionsContenteditable($(this), options)
             else
                 $(this).data 'mentionsInput', new MentionsInput($(this), options)
