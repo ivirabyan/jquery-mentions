@@ -532,7 +532,7 @@
     };
 
     MentionsContenteditable.prototype._initValue = function() {
-      return this._setValue(this.input.val());
+      return this._setValue(this.input.html());
     };
 
     MentionsContenteditable.prototype._setValue = function(value) {

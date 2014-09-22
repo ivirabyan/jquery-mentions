@@ -392,7 +392,7 @@ class MentionsContenteditable extends MentionsBase
             @_watch el
 
     _initValue: ->
-        @_setValue(@input.val())
+        @_setValue(@input.html())
 
     _setValue: (value) ->
         mentionRE = /@\[([^\]]+)\]\(([^ \)]+)\)/g
