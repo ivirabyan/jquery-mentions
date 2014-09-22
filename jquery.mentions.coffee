@@ -209,7 +209,9 @@ class MentionsInput extends MentionsBase
         @input.on "focus.#{namespace} blur.#{namespace}", @_setHighligherStyle
 
     _initValue: ->
-        value = @input.val()
+        @_setValue(@input.val())
+
+    _setValue: (value) ->
         mentionRE = /@\[([^\]]+)\]\(([^ \)]+)\)/g
         markedValue = value.replace(mentionRE, @_mark('$1'))
         @input.val(markedValue)
@@ -325,6 +327,10 @@ class MentionsInput extends MentionsBase
         @input.val(value)
         @_updateValue()
 
+    setValue: (value) ->
+        @_setValue(value)
+        @_initEvents()
+        
     getValue: ->
         return @hidden.val()
 
@@ -386,7 +392,9 @@ class MentionsContenteditable extends MentionsBase
             @_watch el
 
     _initValue: ->
-        value = @input.html()
+        @_setValue(@input.val())
+
+    _setValue: (value) ->
         mentionRE = /@\[([^\]]+)\]\(([^ \)]+)\)/g
         value = value.replace mentionRE, (match, value, uid) =>
             mentionTpl(value: value, uid: uid) + @marker
@@ -434,6 +442,10 @@ class MentionsContenteditable extends MentionsBase
         @_initEvents()
         @input.focus()
 
+    setValue: (value) ->
+        @_setValue(value)
+        @_initEvents()
+
     getValue: ->
         value = @input.clone()
         $(@selector, value).replaceWith ->
@@ -462,7 +474,7 @@ $.fn[namespace] = (options, args...) ->
             if options of instance
                 returnValue = instance[options](args...)
         else
-            if this.tagName of ['INPUT', 'TEXTAREA']
+            if this.tagName in ['INPUT', 'TEXTAREA']
                 $(this).data 'mentionsInput', new MentionsInput($(this), options)
             else if this.contentEditable == "true"
                 $(this).data 'mentionsInput', new MentionsContenteditable($(this), options)
