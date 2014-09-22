@@ -209,7 +209,7 @@ class MentionsInput extends MentionsBase
         @input.on "focus.#{namespace} blur.#{namespace}", @_setHighligherStyle
 
     _initValue: ->
-        @_setValue(@input.val)
+        @_setValue(@input.val())
 
     _setValue: (value) ->
         mentionRE = /@\[([^\]]+)\]\(([^ \)]+)\)/g
@@ -392,7 +392,7 @@ class MentionsContenteditable extends MentionsBase
             @_watch el
 
     _initValue: ->
-        @_setValue(@input.val)
+        @_setValue(@input.val())
 
     _setValue: (value) ->
         mentionRE = /@\[([^\]]+)\]\(([^ \)]+)\)/g
