@@ -56,7 +56,7 @@ $('textarea').mentionsInput('append', {name: 'alex', uid: 'user:1'});
 ## Methods
 
 #### setValue(markup)
-  Replace contents with marked up text. For example 'Hey @[alex](user:1)'
+  Replace contents with marked up text. For example `'Hey @[alex](user:1)'`
 
 #### getValue()
   Returns marked up value.
