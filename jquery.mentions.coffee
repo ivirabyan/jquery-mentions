@@ -177,6 +177,7 @@ class MentionsInput extends MentionsBase
             select: @_onSelect,
             source: @options.source,
             delay: @options.delay,
+            minLength: @options.minLength,
             appendTo: @input.parent()
         )
 
@@ -355,6 +356,7 @@ class MentionsContenteditable extends MentionsBase
             select: @_onSelect,
             source: @options.source,
             delay: @options.delay,
+            minLength: @options.minLength,
             showAtCaret: @options.showAtCaret
         )
         @_initValue()

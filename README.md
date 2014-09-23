@@ -49,6 +49,8 @@ $('textarea').mentionsInput('append', {name: 'alex', uid: 'user:1'});
   Data source for the autocomplete. See [jQuery Autocomplete API](http://api.jqueryui.com/autocomplete/#option-source) for available values.
 #### delay
   Delay for autocomplete to start searching. Default value is 0. More info in [jQuery Autocomplete API](http://api.jqueryui.com/autocomplete/#option-delay)
+#### minLength
+  The minimum number of characters to trigger autocomplete. More info in [jQuery Autocomplete API](http://api.jqueryui.com/autocomplete/#option-minLength)
 #### trigger
   Char which trigger autocomplete, default value is '@'
 

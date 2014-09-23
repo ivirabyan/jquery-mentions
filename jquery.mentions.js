@@ -225,6 +225,7 @@
         select: this._onSelect,
         source: this.options.source,
         delay: this.options.delay,
+        minLength: this.options.minLength,
         appendTo: this.input.parent()
       });
       this._initValue();
@@ -491,6 +492,7 @@
         select: this._onSelect,
         source: this.options.source,
         delay: this.options.delay,
+        minLength: this.options.minLength,
         showAtCaret: this.options.showAtCaret
       });
       this._initValue();
