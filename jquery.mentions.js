@@ -624,14 +624,14 @@
     options = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
     returnValue = this;
     this.each(function() {
-      var instance;
+      var instance, _ref;
       if (typeof options === 'string' && options.charAt(0) !== '_') {
         instance = $(this).data('mentionsInput');
         if (options in instance) {
           return returnValue = instance[options].apply(instance, args);
         }
       } else {
-        if (this.tagName in ['INPUT', 'TEXTAREA']) {
+        if ((_ref = this.tagName) === 'INPUT' || _ref === 'TEXTAREA') {
           return $(this).data('mentionsInput', new MentionsInput($(this), options));
         } else if (this.contentEditable === "true") {
           return $(this).data('mentionsInput', new MentionsContenteditable($(this), options));
