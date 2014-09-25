@@ -119,8 +119,10 @@ $.widget( "ui.editablecomplete", $.ui.areacomplete,
             boundary.setStart node, @start
             boundary.collapse true
             rect = boundary.getClientRects()[0]
+            posX = rect.left + (window.scrollX || window.pageXOffset)
+            posY = rect.top + rect.height + (window.scrollY || window.pageYOffset)
             @options.position.of = document
-            @options.position.at = "left+#{rect.left} top+#{rect.top+rect.height}"
+            @options.position.at = "left+#{posX} top+#{posY}"
 )
 
 
@@ -162,6 +164,7 @@ class MentionsInput extends MentionsBase
 
         @hidden = @_createHidden()
         @highlighter = @_createHighlighter()
+        @_setHighligherStyle()
         @highlighterContent = $('div', @highlighter)
 
         @input.focus(=>
@@ -182,11 +185,8 @@ class MentionsInput extends MentionsBase
         @_setValue(@input.val())
         @_initEvents()
 
-    
-
     _initEvents: ->
-        @input.on("input.#{namespace}", @_update)
-        @input.on("change.#{namespace}", @_update)
+        @input.on("input.#{namespace} change.#{namespace}", @_update)
 
         @input.on("keydown.#{namespace}", (event) =>
             setTimeout((=> @_handleLeftRight(event)), 10)
@@ -204,6 +204,9 @@ class MentionsInput extends MentionsBase
         else if tagName == "TEXTAREA"
             @input.on("scroll.#{namespace}", (=> setTimeout(@_updateVScroll, 10)))
             @input.on("resize.#{namespace}", (=> setTimeout(@_updateVScroll, 10)))
+
+        $(window).on "load", @_setHighligherStyle
+        @input.on "focus.#{namespace} blur.#{namespace}", @_setHighligherStyle
 
     _setValue: (value) ->
         mentionRE = /@\[([^\]]+)\]\(([^ \)]+)\)/g
@@ -228,15 +231,14 @@ class MentionsInput extends MentionsBase
 
     _createHighlighter: ->
         highlighter = $('<div>', {'class': 'highlighter'})
-        highlighter.prependTo(@container)
-
         content = $('<div>', {'class': 'highlighter-content'})
-        highlighter.append(content)
-
-        @input.css('backgroundColor', 'transparent')
-        for property in mimicProperties
-            highlighter.css(property, @input.css(property))
+        highlighter.append(content).prependTo(@container)
+        @input.css 'backgroundColor', 'transparent'
         return highlighter
+
+    _setHighligherStyle: =>
+        for property in mimicProperties
+            @highlighter.css property, @input.css(property)
 
     _handleLeftRight: (event) =>
         if event.keyCode == Key.LEFT or event.keyCode == Key.RIGHT
@@ -350,7 +352,7 @@ class MentionsContenteditable extends MentionsBase
         @_initEvents()
 
     mentionTpl = (mention) ->
-        "<span data-mention=\"#{mention.uid}\">#{mention.value}</span>"
+        "<strong data-mention=\"#{mention.uid}\">#{mention.value}</strong>"
 
     insertMention = (mention, pos, suffix) ->
         selection = window.getSelection()
@@ -393,6 +395,7 @@ class MentionsContenteditable extends MentionsBase
 
     _onSelect: (event, ui) =>
         @_addMention ui.item
+        @input.trigger "change.#{namespace}"
         return false
 
     _watch: (mention) ->
@@ -402,13 +405,19 @@ class MentionsContenteditable extends MentionsBase
                 sel = window.getSelection()
                 offset = sel.focusOffset
 
-                $(mention).replaceWith text
+                $(text).insertBefore mention
+                $(mention).remove()
 
                 range = document.createRange()
                 range.setStart text, offset
                 range.collapse true
                 sel.removeAllRanges()
                 sel.addRange range
+
+    update: ->
+        @_initValue()
+        @_initEvents()
+        @input.focus()
 
     setValue: (pieces...) ->
         value = ''
@@ -449,9 +458,9 @@ $.fn[namespace] = (options, args...) ->
             if options of instance
                 returnValue = instance[options](args...)
         else
-            if this.isContentEditable
-                $(this).data 'mentionsInput', new MentionsContenteditable($(this), options)
-            else
+            if this.tagName of ['INPUT', 'TEXTAREA']
                 $(this).data 'mentionsInput', new MentionsInput($(this), options)
+            else if this.contentEditable == "true"
+                $(this).data 'mentionsInput', new MentionsContenteditable($(this), options)
     )
     return returnValue

@@ -139,14 +139,16 @@
       return $.ui.autocomplete.prototype.search.call(this, value, event);
     },
     _setDropdownPosition: function(node) {
-      var boundary, rect;
+      var boundary, posX, posY, rect;
       if (this.options.showAtCaret) {
         boundary = document.createRange();
         boundary.setStart(node, this.start);
         boundary.collapse(true);
         rect = boundary.getClientRects()[0];
+        posX = rect.left + (window.scrollX || window.pageXOffset);
+        posY = rect.top + rect.height + (window.scrollY || window.pageYOffset);
         this.options.position.of = document;
-        return this.options.position.at = "left+" + rect.left + " top+" + (rect.top + rect.height);
+        return this.options.position.at = "left+" + posX + " top+" + posY;
       }
     }
   });
@@ -200,6 +202,7 @@
       this._update = __bind(this._update, this);
       this._mark = __bind(this._mark, this);
       this._handleLeftRight = __bind(this._handleLeftRight, this);
+      this._setHighligherStyle = __bind(this._setHighligherStyle, this);
       MentionsInput.__super__.constructor.call(this, this.input, options);
       this.mentions = [];
       this.input.addClass('input');
@@ -210,6 +213,7 @@
       this.container = this.input.wrapAll(container).parent();
       this.hidden = this._createHidden();
       this.highlighter = this._createHighlighter();
+      this._setHighligherStyle();
       this.highlighterContent = $('div', this.highlighter);
       this.input.focus((function(_this) {
         return function() {
@@ -234,8 +238,7 @@
 
     MentionsInput.prototype._initEvents = function() {
       var tagName;
-      this.input.on("input." + namespace, this._update);
-      this.input.on("change." + namespace, this._update);
+      this.input.on("input." + namespace + " change." + namespace, this._update);
       this.input.on("keydown." + namespace, (function(_this) {
         return function(event) {
           return setTimeout((function() {
@@ -250,7 +253,7 @@
             return _this.interval = setInterval(_this._updateHScroll, 10);
           };
         })(this));
-        return this.input.on("blur." + namespace, (function(_this) {
+        this.input.on("blur." + namespace, (function(_this) {
           return function() {
             setTimeout(_this._updateHScroll, 10);
             return clearInterval(_this.interval);
@@ -262,12 +265,14 @@
             return setTimeout(_this._updateVScroll, 10);
           };
         })(this)));
-        return this.input.on("resize." + namespace, ((function(_this) {
+        this.input.on("resize." + namespace, ((function(_this) {
           return function() {
             return setTimeout(_this._updateVScroll, 10);
           };
         })(this)));
       }
+      $(window).on("load", this._setHighligherStyle);
+      return this.input.on("focus." + namespace + " blur." + namespace, this._setHighligherStyle);
     };
 
     MentionsInput.prototype._setValue = function(value) {
@@ -298,21 +303,26 @@
     };
 
     MentionsInput.prototype._createHighlighter = function() {
-      var content, highlighter, property, _i, _len;
+      var content, highlighter;
       highlighter = $('<div>', {
         'class': 'highlighter'
       });
-      highlighter.prependTo(this.container);
       content = $('<div>', {
         'class': 'highlighter-content'
       });
-      highlighter.append(content);
+      highlighter.append(content).prependTo(this.container);
       this.input.css('backgroundColor', 'transparent');
+      return highlighter;
+    };
+
+    MentionsInput.prototype._setHighligherStyle = function() {
+      var property, _i, _len, _results;
+      _results = [];
       for (_i = 0, _len = mimicProperties.length; _i < _len; _i++) {
         property = mimicProperties[_i];
-        highlighter.css(property, this.input.css(property));
+        _results.push(this.highlighter.css(property, this.input.css(property)));
       }
-      return highlighter;
+      return _results;
     };
 
     MentionsInput.prototype._handleLeftRight = function(event) {
@@ -478,7 +488,7 @@
     }
 
     mentionTpl = function(mention) {
-      return "<span data-mention=\"" + mention.uid + "\">" + mention.value + "</span>";
+      return "<strong data-mention=\"" + mention.uid + "\">" + mention.value + "</strong>";
     };
 
     insertMention = function(mention, pos, suffix) {
@@ -534,6 +544,7 @@
 
     MentionsContenteditable.prototype._onSelect = function(event, ui) {
       this._addMention(ui.item);
+      this.input.trigger("change." + namespace);
       return false;
     };
 
@@ -544,7 +555,8 @@
           text = e.target;
           sel = window.getSelection();
           offset = sel.focusOffset;
-          $(mention).replaceWith(text);
+          $(text).insertBefore(mention);
+          $(mention).remove();
           range = document.createRange();
           range.setStart(text, offset);
           range.collapse(true);
@@ -552,6 +564,12 @@
           return sel.addRange(range);
         }
       });
+    };
+
+    MentionsContenteditable.prototype.update = function() {
+      this._initValue();
+      this._initEvents();
+      return this.input.focus();
     };
 
     MentionsContenteditable.prototype.setValue = function() {
@@ -613,10 +631,10 @@
           return returnValue = instance[options].apply(instance, args);
         }
       } else {
-        if (this.isContentEditable) {
-          return $(this).data('mentionsInput', new MentionsContenteditable($(this), options));
-        } else {
+        if (this.tagName in ['INPUT', 'TEXTAREA']) {
           return $(this).data('mentionsInput', new MentionsInput($(this), options));
+        } else if (this.contentEditable === "true") {
+          return $(this).data('mentionsInput', new MentionsContenteditable($(this), options));
         }
       }
     });
