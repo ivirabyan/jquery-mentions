@@ -40,7 +40,7 @@ $('textarea').mentionsInput({source: 'http://example.com'})
 Calling a method:
 ```
 $('textarea').mentionsInput('getValue');
-$('textarea').mentionsInput('append', {name: 'alex', uid: 'user:1'});
+$('textarea').mentionsInput('setValue', 'Hello, @[Alex](user:1)');
 ```
 
 ## Options
@@ -58,8 +58,10 @@ $('textarea').mentionsInput('append', {name: 'alex', uid: 'user:1'});
 #### getValue()
   Returns marked up value.
 
-#### append(pieces)
-  Appends pieces of text to the input. Pieces is an array, containing a text or a mention object. For example `['Hey', {name: 'alex', uid: 'user:1'}]`
+#### setValue(value)
+  Takes marked up value as an argument. For example `'Hey, @[alex](user:1)'`.
+  You can also represent mentions as objects, instead of manually marking them up:
+  `$textarea.mentionsInput('setValue', 'Hey, ', {name: 'alex', uid: 'user:1'})`
 
 #### clear()
   Clears value. Note that you must use this method insted of manually clearing value of the input

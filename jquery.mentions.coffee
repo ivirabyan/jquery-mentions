@@ -136,6 +136,8 @@ class MentionsBase
         allowedChars = '[^' + @options.trigger + ']'
         return '\\B[' + @options.trigger + '](' + allowedChars + '{0,20})'
 
+    _markupMention: (mention) ->
+        return "@[#{mention.name}](#{mention.uid})"
 
 
 class MentionsInput extends MentionsBase
@@ -177,7 +179,7 @@ class MentionsInput extends MentionsBase
             appendTo: @input.parent()
         )
 
-        @_initValue()
+        @_setValue(@input.val())
         @_initEvents()
 
     
@@ -203,8 +205,7 @@ class MentionsInput extends MentionsBase
             @input.on("scroll.#{namespace}", (=> setTimeout(@_updateVScroll, 10)))
             @input.on("resize.#{namespace}", (=> setTimeout(@_updateVScroll, 10)))
 
-    _initValue: ->
-        value = @input.val()
+    _setValue: (value) ->
         mentionRE = /@\[([^\]]+)\]\(([^ \)]+)\)/g
         markedValue = value.replace(mentionRE, @_mark('$1'))
         @input.val(markedValue)
@@ -289,7 +290,7 @@ class MentionsInput extends MentionsBase
         for mention in @mentions
             markedName = @_mark(mention.name)
             hlContent = hlContent.replace(markedName, "<strong>#{mention.name}</strong>")
-            value = value.replace(markedName, "@[#{mention.name}](#{mention.uid})")
+            value = value.replace(markedName, @_markupMention)
 
         @hidden.val(value)
         @highlighterContent.html(hlContent)
@@ -310,16 +311,14 @@ class MentionsInput extends MentionsBase
     _cutChar: (value, index) ->
         return value.substring(0, index) + value.substring(index + 1)
 
-    append: (pieces...) ->
-        value = @input.val()
+    setValue: (pieces...) ->
+        value = ''
         for piece in pieces
             if typeof piece == 'string'
                 value += piece
             else
-                @_addMention({name: piece.name, uid: piece.uid, pos: value.length})
-                value += @_mark(piece.name)
-        @input.val(value)
-        @_updateValue()
+                value += @_markupMention(piece)
+        @_setValue(value)
 
     getValue: ->
         return @hidden.val()
@@ -347,7 +346,7 @@ class MentionsContenteditable extends MentionsBase
             delay: @options.delay,
             showAtCaret: @options.showAtCaret
         )
-        @_initValue()
+        @_setValue(@input.html())
         @_initEvents()
 
     mentionTpl = (mention) ->
@@ -381,8 +380,7 @@ class MentionsContenteditable extends MentionsBase
         @input.find(@selector).each (i, el) =>
             @_watch el
 
-    _initValue: ->
-        value = @input.html()
+    _setValue: (value) ->
         mentionRE = /@\[([^\]]+)\]\(([^ \)]+)\)/g
         value = value.replace mentionRE, (match, value, uid) =>
             mentionTpl(value: value, uid: uid) + @marker
@@ -412,14 +410,14 @@ class MentionsContenteditable extends MentionsBase
                 sel.removeAllRanges()
                 sel.addRange range
 
-    append: (pieces...) ->
-        value = @input.html()
+    setValue: (pieces...) ->
+        value = ''
         for piece in pieces
             if typeof piece == 'string'
                 value += piece
             else
-                value += mentionTpl(value: piece.name, uid: piece.uid) + @marker
-        @input.html value
+                value += @_markupMention(piece)
+        @_setValue(value)
         @_initEvents()
         @input.focus()
 
@@ -428,7 +426,7 @@ class MentionsContenteditable extends MentionsBase
         $(@selector, value).replaceWith ->
             uid = $(this).data 'mention'
             name = $(this).text()
-            return "@[#{name}](#{uid})"
+            return @_markupMention({name: name, uid: uid})
         value.html().replace(@marker, '')
 
     clear: ->

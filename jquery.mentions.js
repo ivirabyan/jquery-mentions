@@ -168,6 +168,10 @@
       return '\\B[' + this.options.trigger + '](' + allowedChars + '{0,20})';
     };
 
+    MentionsBase.prototype._markupMention = function(mention) {
+      return "@[" + mention.name + "](" + mention.uid + ")";
+    };
+
     return MentionsBase;
 
   })();
@@ -224,7 +228,7 @@
         delay: this.options.delay,
         appendTo: this.input.parent()
       });
-      this._initValue();
+      this._setValue(this.input.val());
       this._initEvents();
     }
 
@@ -266,9 +270,8 @@
       }
     };
 
-    MentionsInput.prototype._initValue = function() {
-      var markedValue, match, mentionRE, pos, value;
-      value = this.input.val();
+    MentionsInput.prototype._setValue = function(value) {
+      var markedValue, match, mentionRE, pos;
       mentionRE = /@\[([^\]]+)\]\(([^ \)]+)\)/g;
       markedValue = value.replace(mentionRE, this._mark('$1'));
       this.input.val(markedValue);
@@ -384,7 +387,7 @@
         mention = _ref[_i];
         markedName = this._mark(mention.name);
         hlContent = hlContent.replace(markedName, "<strong>" + mention.name + "</strong>");
-        value = value.replace(markedName, "@[" + mention.name + "](" + mention.uid + ")");
+        value = value.replace(markedName, this._markupMention);
       }
       this.hidden.val(value);
       return this.highlighterContent.html(hlContent);
@@ -416,25 +419,19 @@
       return value.substring(0, index) + value.substring(index + 1);
     };
 
-    MentionsInput.prototype.append = function() {
+    MentionsInput.prototype.setValue = function() {
       var piece, pieces, value, _i, _len;
       pieces = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-      value = this.input.val();
+      value = '';
       for (_i = 0, _len = pieces.length; _i < _len; _i++) {
         piece = pieces[_i];
         if (typeof piece === 'string') {
           value += piece;
         } else {
-          this._addMention({
-            name: piece.name,
-            uid: piece.uid,
-            pos: value.length
-          });
-          value += this._mark(piece.name);
+          value += this._markupMention(piece);
         }
       }
-      this.input.val(value);
-      return this._updateValue();
+      return this._setValue(value);
     };
 
     MentionsInput.prototype.getValue = function() {
@@ -476,7 +473,7 @@
         delay: this.options.delay,
         showAtCaret: this.options.showAtCaret
       });
-      this._initValue();
+      this._setValue(this.input.html());
       this._initEvents();
     }
 
@@ -514,9 +511,8 @@
       })(this));
     };
 
-    MentionsContenteditable.prototype._initValue = function() {
-      var mentionRE, value;
-      value = this.input.html();
+    MentionsContenteditable.prototype._setValue = function(value) {
+      var mentionRE;
       mentionRE = /@\[([^\]]+)\]\(([^ \)]+)\)/g;
       value = value.replace(mentionRE, (function(_this) {
         return function(match, value, uid) {
@@ -558,22 +554,19 @@
       });
     };
 
-    MentionsContenteditable.prototype.append = function() {
+    MentionsContenteditable.prototype.setValue = function() {
       var piece, pieces, value, _i, _len;
       pieces = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-      value = this.input.html();
+      value = '';
       for (_i = 0, _len = pieces.length; _i < _len; _i++) {
         piece = pieces[_i];
         if (typeof piece === 'string') {
           value += piece;
         } else {
-          value += mentionTpl({
-            value: piece.name,
-            uid: piece.uid
-          }) + this.marker;
+          value += this._markupMention(piece);
         }
       }
-      this.input.html(value);
+      this._setValue(value);
       this._initEvents();
       return this.input.focus();
     };
@@ -585,7 +578,10 @@
         var name, uid;
         uid = $(this).data('mention');
         name = $(this).text();
-        return "@[" + name + "](" + uid + ")";
+        return this._markupMention({
+          name: name,
+          uid: uid
+        });
       });
       return value.html().replace(this.marker, '');
     };
