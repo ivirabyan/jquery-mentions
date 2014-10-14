@@ -292,7 +292,7 @@ class MentionsInput extends MentionsBase
         for mention in @mentions
             markedName = @_mark(mention.name)
             hlContent = hlContent.replace(markedName, "<strong>#{mention.name}</strong>")
-            value = value.replace(markedName, @_markupMention)
+            value = value.replace(markedName, @_markupMention(mention))
 
         @hidden.val(value)
         @highlighterContent.html(hlContent)

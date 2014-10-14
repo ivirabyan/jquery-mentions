@@ -397,7 +397,7 @@
         mention = _ref[_i];
         markedName = this._mark(mention.name);
         hlContent = hlContent.replace(markedName, "<strong>" + mention.name + "</strong>");
-        value = value.replace(markedName, this._markupMention);
+        value = value.replace(markedName, this._markupMention(mention));
       }
       this.hidden.val(value);
       return this.highlighterContent.html(hlContent);
