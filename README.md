@@ -47,6 +47,9 @@ $('textarea').mentionsInput('setValue', 'Hello, @[Alex](user:1)');
 
 #### source
   Data source for the autocomplete. See [jQuery Autocomplete API](http://api.jqueryui.com/autocomplete/#option-source) for available values.
+  
+  Source data is an array of objects with `uid` and `value` properties: `[{uid: '123', value: 'Alex'}, ...]`. If you want to display an icon in dropdown list, you can add an `image` property to objects in the array.
+  
 #### delay
   Delay for autocomplete to start searching. Default value is 0. More info in [jQuery Autocomplete API](http://api.jqueryui.com/autocomplete/#option-delay)
 #### trigger
