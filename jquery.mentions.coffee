@@ -14,7 +14,8 @@ Selection =
 
 settings =
     delay: 0
-    trigger: '@'
+    trigger: '@',
+    autoFocus: true
 
 
 
@@ -179,7 +180,8 @@ class MentionsInput extends MentionsBase
             select: @_onSelect,
             source: @options.source,
             delay: @options.delay,
-            appendTo: @input.parent()
+            appendTo: @input.parent(),
+            autoFocus: @options.autoFocus
         )
 
         @_setValue(@input.val())
@@ -346,6 +348,7 @@ class MentionsContenteditable extends MentionsBase
             select: @_onSelect,
             source: @options.source,
             delay: @options.delay,
+            autoFocus: @options.autoFocus,
             showAtCaret: @options.showAtCaret
         )
         @_setValue(@input.html())

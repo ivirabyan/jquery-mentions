@@ -28,7 +28,8 @@
 
   settings = {
     delay: 0,
-    trigger: '@'
+    trigger: '@',
+    autoFocus: true
   };
 
   $.widget("ui.areacomplete", $.ui.autocomplete, {
@@ -230,7 +231,8 @@
         select: this._onSelect,
         source: this.options.source,
         delay: this.options.delay,
-        appendTo: this.input.parent()
+        appendTo: this.input.parent(),
+        autoFocus: this.options.autoFocus
       });
       this._setValue(this.input.val());
       this._initEvents();
@@ -481,6 +483,7 @@
         select: this._onSelect,
         source: this.options.source,
         delay: this.options.delay,
+        autoFocus: this.options.autoFocus,
         showAtCaret: this.options.showAtCaret
       });
       this._setValue(this.input.html());
