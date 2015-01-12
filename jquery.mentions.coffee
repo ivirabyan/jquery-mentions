@@ -67,15 +67,16 @@ $.widget( "ui.areacomplete", $.ui.autocomplete,
 
             @start = match.index
             @end = match.index + match[0].length
-            value = match[1]
-        return $.ui.autocomplete.prototype.search.call(@, value, event)
+            @searchTerm = match[1]
+        return $.ui.autocomplete.prototype.search.call(@, @searchTerm, event)
 
     _renderItem: (ul, item) ->
         li = $('<li>')
         anchor = $('<a>').appendTo(li)
         if item.image
             anchor.append("<img src=\"#{item.image}\" />")
-        anchor.append(item.value)
+        value = item.value.replace(this.searchTerm.substring(), "<strong>$&</strong>")
+        anchor.append(value)
         return li.appendTo(ul)
 )
 
@@ -111,8 +112,8 @@ $.widget( "ui.editablecomplete", $.ui.areacomplete,
             @start = match.index
             @end = match.index + match[0].length
             @_setDropdownPosition node
-            value = match[1]
-        return $.ui.autocomplete.prototype.search.call(@, value, event)
+            @searchTerm = match[1]
+        return $.ui.autocomplete.prototype.search.call(@, @searchTerm, event)
 
     _setDropdownPosition: (node) ->
         if @options.showAtCaret

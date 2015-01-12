@@ -83,18 +83,19 @@
         }
         this.start = match.index;
         this.end = match.index + match[0].length;
-        value = match[1];
+        this.searchTerm = match[1];
       }
-      return $.ui.autocomplete.prototype.search.call(this, value, event);
+      return $.ui.autocomplete.prototype.search.call(this, this.searchTerm, event);
     },
     _renderItem: function(ul, item) {
-      var anchor, li;
+      var anchor, li, value;
       li = $('<li>');
       anchor = $('<a>').appendTo(li);
       if (item.image) {
         anchor.append("<img src=\"" + item.image + "\" />");
       }
-      anchor.append(item.value);
+      value = item.value.replace(this.searchTerm.substring(), "<strong>$&</strong>");
+      anchor.append(value);
       return li.appendTo(ul);
     }
   });
@@ -135,9 +136,9 @@
         this.start = match.index;
         this.end = match.index + match[0].length;
         this._setDropdownPosition(node);
-        value = match[1];
+        this.searchTerm = match[1];
       }
-      return $.ui.autocomplete.prototype.search.call(this, value, event);
+      return $.ui.autocomplete.prototype.search.call(this, this.searchTerm, event);
     },
     _setDropdownPosition: function(node) {
       var boundary, posX, posY, rect;
