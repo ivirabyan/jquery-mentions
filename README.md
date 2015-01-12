@@ -55,6 +55,8 @@ $('textarea').mentionsInput('setValue', 'Hello, @[Alex](user:1)');
 #### trigger
   Char which trigger autocomplete, default value is '@'
 
+#### autoFocus
+  If this is true, first item is automatically focused in the dropdown. Default is true.
 
 ## Methods
 
