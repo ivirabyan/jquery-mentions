@@ -310,6 +310,9 @@
       highlighter = $('<div>', {
         'class': 'highlighter'
       });
+      if (this.input.prop("tagName") === "INPUT") {
+        highlighter.css('whiteSpace', 'nowrap');
+      }
       content = $('<div>', {
         'class': 'highlighter-content'
       });
@@ -418,10 +421,9 @@
     MentionsInput.prototype._updateHScroll = function() {
       var scrollLeft;
       scrollLeft = this.input.scrollLeft();
-      this.highlighterContent.css({
+      return this.highlighterContent.css({
         left: "-" + scrollLeft + "px"
       });
-      return this.highlighterContent.width(this.input.get(0).scrollWidth);
     };
 
     MentionsInput.prototype._replaceWithSpaces = function(value, what) {

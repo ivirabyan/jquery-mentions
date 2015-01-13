@@ -234,6 +234,8 @@ class MentionsInput extends MentionsBase
 
     _createHighlighter: ->
         highlighter = $('<div>', {'class': 'highlighter'})
+        if @input.prop("tagName") == "INPUT"
+            highlighter.css('whiteSpace', 'nowrap')
         content = $('<div>', {'class': 'highlighter-content'})
         highlighter.append(content).prependTo(@container)
         @input.css 'backgroundColor', 'transparent'
@@ -308,7 +310,6 @@ class MentionsInput extends MentionsBase
     _updateHScroll: =>
         scrollLeft = @input.scrollLeft()
         @highlighterContent.css(left: "-#{scrollLeft}px")
-        @highlighterContent.width(@input.get(0).scrollWidth)
 
     _replaceWithSpaces: (value, what) ->
         return value.replace(what, Array(what.length).join(' '))
