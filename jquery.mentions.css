@@ -13,9 +13,6 @@
     right: 0;
     color: transparent;
     overflow: hidden;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-
     border-style: solid;
     border-color: transparent;
 }

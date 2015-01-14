@@ -311,7 +311,10 @@
         'class': 'highlighter'
       });
       if (this.input.prop("tagName") === "INPUT") {
-        highlighter.css('whiteSpace', 'nowrap');
+        highlighter.css('whiteSpace', 'pre');
+      } else {
+        highlighter.css('whiteSpace', 'pre-wrap');
+        highlighter.css('wordWrap', 'break-word');
       }
       content = $('<div>', {
         'class': 'highlighter-content'

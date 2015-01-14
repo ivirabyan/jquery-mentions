@@ -234,8 +234,13 @@ class MentionsInput extends MentionsBase
 
     _createHighlighter: ->
         highlighter = $('<div>', {'class': 'highlighter'})
+        
         if @input.prop("tagName") == "INPUT"
-            highlighter.css('whiteSpace', 'nowrap')
+            highlighter.css('whiteSpace', 'pre')
+        else
+            highlighter.css('whiteSpace', 'pre-wrap')
+            highlighter.css('wordWrap', 'break-word')
+        
         content = $('<div>', {'class': 'highlighter-content'})
         highlighter.append(content).prependTo(@container)
         @input.css 'backgroundColor', 'transparent'
