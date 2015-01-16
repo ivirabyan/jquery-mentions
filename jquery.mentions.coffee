@@ -148,7 +148,7 @@ class MentionsInput extends MentionsBase
     Key = LEFT : 37, RIGHT : 39
 
     mimicProperties = [
-        'marginTop', 'marginBottom', 'marginLeft', 'marginRight',
+        'backgroundColor', 'marginTop', 'marginBottom', 'marginLeft', 'marginRight',
         'paddingTop', 'paddingBottom', 'paddingLeft', 'paddingRight',
         'borderTopWidth', 'borderLeftWidth', 'borderBottomWidth', 'borderRightWidth',
         'fontSize', 'fontStyle', 'fontFamily', 'fontWeight', 'lineHeight', 'height', 'boxSizing'
@@ -166,7 +166,6 @@ class MentionsInput extends MentionsBase
 
         @hidden = @_createHidden()
         @highlighter = @_createHighlighter()
-        @_setHighligherStyle()
         @highlighterContent = $('div', @highlighter)
 
         @input.focus(=>
@@ -208,9 +207,6 @@ class MentionsInput extends MentionsBase
             @input.on("scroll.#{namespace}", (=> setTimeout(@_updateVScroll, 10)))
             @input.on("resize.#{namespace}", (=> setTimeout(@_updateVScroll, 10)))
 
-        $(window).on "load", @_setHighligherStyle
-        @input.on "focus.#{namespace} blur.#{namespace}", @_setHighligherStyle
-
     _setValue: (value) ->
         mentionRE = /@\[([^\]]+)\]\(([^ \)]+)\)/g
         markedValue = value.replace(mentionRE, @_mark('$1'))
@@ -243,12 +239,11 @@ class MentionsInput extends MentionsBase
         
         content = $('<div>', {'class': 'highlighter-content'})
         highlighter.append(content).prependTo(@container)
+
+        for property in mimicProperties
+            highlighter.css property, @input.css(property)
         @input.css 'backgroundColor', 'transparent'
         return highlighter
-
-    _setHighligherStyle: =>
-        for property in mimicProperties
-            @highlighter.css property, @input.css(property)
 
     _handleLeftRight: (event) =>
         if event.keyCode == Key.LEFT or event.keyCode == Key.RIGHT
