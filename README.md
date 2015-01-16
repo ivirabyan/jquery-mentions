@@ -31,11 +31,12 @@ var data = [
 $('textarea').mentionsInput({source: data});
 ```
 
-Remote datasource:
+Remote datasource (ajax):
 
 ```
-$('textarea').mentionsInput({source: 'http://example.com'})
+$('textarea').mentionsInput({source: 'http://example.com/users.json'})
 ```
+The url is given a query paremeter `term`, like `http://example.com/users.json?term=Foo` and must return a json list of matched values (like the above).
 
 Calling a method:
 ```
