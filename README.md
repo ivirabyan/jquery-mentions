@@ -69,6 +69,15 @@ $('textarea').mentionsInput('setValue', 'Hello, @[Alex](user:1)');
   You can also represent mentions as objects, instead of manually marking them up:
   `$textarea.mentionsInput('setValue', 'Hey, ', {name: 'alex', uid: 'user:1'})`
 
+#### getMentions()
+  Returns an array of all mentions contained within the text, like this:
+  ```
+  [
+    {value: 'alex', uid: 'user:1'},
+    {value: 'andrew', uid: 'user:2'}
+  ]
+  ```
+
 #### clear()
   Clears value. Note that you must use this method insted of manually clearing value of the input
 

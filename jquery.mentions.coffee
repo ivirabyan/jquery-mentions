@@ -329,6 +329,9 @@ class MentionsInput extends MentionsBase
     getValue: ->
         return @hidden.val()
 
+    getMentions: ->
+        return @mentions
+
     clear: ->
         @input.val('')
         @_update()

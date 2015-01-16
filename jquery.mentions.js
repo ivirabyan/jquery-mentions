@@ -446,6 +446,10 @@
       return this.hidden.val();
     };
 
+    MentionsInput.prototype.getMentions = function() {
+      return this.mentions;
+    };
+
     MentionsInput.prototype.clear = function() {
       this.input.val('');
       return this._update();
