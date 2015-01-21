@@ -83,8 +83,8 @@ Don't use textarea value directly, because it contains special characters, used 
   Returns an array of all mentions contained within the text, like this:
   ```
   [
-    {value: 'alex', uid: 'user:1'},
-    {value: 'andrew', uid: 'user:2'}
+    {name: 'alex', uid: 'user:1'},
+    {name: 'andrew', uid: 'user:2'}
   ]
   ```
 
