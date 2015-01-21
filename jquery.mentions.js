@@ -446,6 +446,10 @@
       return this.hidden.val();
     };
 
+    MentionsInput.prototype.getRawValue = function() {
+      return this.input.val().replace(this.marker, '');
+    };
+
     MentionsInput.prototype.getMentions = function() {
       return this.mentions;
     };

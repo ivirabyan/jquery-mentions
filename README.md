@@ -44,6 +44,13 @@ $('textarea').mentionsInput('getValue');
 $('textarea').mentionsInput('setValue', 'Hello, @[Alex](user:1)');
 ```
 
+Getting value:
+`$('textarea').mentionsInput('getValue')` -> `Hello, @[Alex](user:1)`
+`$('textarea').mentionsInput('getRawValue')` -> `Hello, Alex`
+
+Don't use textarea value directly, because it contains special characters, used by plugin internally. Always use methods.
+
+
 ## Options
 
 #### source
@@ -63,6 +70,9 @@ $('textarea').mentionsInput('setValue', 'Hello, @[Alex](user:1)');
 
 #### getValue()
   Returns marked up value.
+
+#### getRawValue()
+  Returns value without any markup
 
 #### setValue(value)
   Takes marked up value as an argument. For example `'Hey, @[alex](user:1)'`.
