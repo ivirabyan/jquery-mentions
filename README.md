@@ -5,7 +5,8 @@ More stable alternative to [podio's jquery.mentionsInput](https://github.com/pod
 Advantages over jquery.mentionsInput:
 - Many issues are solved
 - Input styles are copied to highlighter automatically
-- Support of both textarea and input tags
+- Support for both textarea and input tags
+- Support for WYSIWYG editors
 - Hidden-input with markuped text created automatically
 - Uses jQuery UI autocomplete
 - The code is much smaller
