@@ -11,6 +11,19 @@ Selection =
             input[0].selectStart = start
             input[0].selectionEnd = end
 
+entityMap =
+    "&": "&amp;"
+    "<": "&lt;"
+    ">": "&gt;"
+    "\"": "&quot;"
+    "'": "&#39;"
+    "/": "&#x2F;"
+
+
+escapeHtml = (text) ->
+    text.replace /[&<>"'\/]/g, (s) ->
+        entityMap[s]
+
 
 settings =
     delay: 0
@@ -293,7 +306,7 @@ class MentionsInput extends MentionsBase
         @_addMention(name: ui.item.value, pos: ui.item.pos, uid: ui.item.uid)
 
     _updateValue: =>
-        value = hlContent = @input.val()
+        value = hlContent = escapeHtml(@input.val())
         for mention in @mentions
             markedName = @_mark(mention.name)
             hlContent = hlContent.replace(markedName, "<strong>#{mention.name}</strong>")
