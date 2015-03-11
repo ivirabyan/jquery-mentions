@@ -105,8 +105,8 @@
     _renderItem: function(ul, item) {
       var anchor, li, value;
       li = $('<li>');
-      if(!item.value){
-        li.append(item[0]);
+      if(item.is_header){
+        li.append(item.value);
         li.addClass('ui-list-header');
       }else{
         anchor = $('<a>').appendTo(li);

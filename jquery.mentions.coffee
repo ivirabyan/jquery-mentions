@@ -85,8 +85,8 @@ $.widget( "ui.areacomplete", $.ui.autocomplete,
 
     _renderItem: (ul, item) ->
         li = $('<li>')
-        if not item.value
-            li.append(item[0]);
+        if item.is_header
+            li.append(item.value);
             li.addClass('ui-list-header');
         else
             anchor = $('<a>').appendTo(li)
