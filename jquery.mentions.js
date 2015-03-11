@@ -105,12 +105,17 @@
     _renderItem: function(ul, item) {
       var anchor, li, value;
       li = $('<li>');
-      anchor = $('<a>').appendTo(li);
-      if (item.image) {
-        anchor.append("<img src=\"" + item.image + "\" />");
+      if(!item.value){
+        li.append(item[0]);
+        li.addClass('ui-list-header');
+      }else{
+        anchor = $('<a>').appendTo(li);
+        if (item.image) {
+          anchor.append("<img src=\"" + item.image + "\" />");
+        }
+        value = item.value.replace(this.searchTerm.substring(), "<strong>$&</strong>");
+        anchor.append(value);
       }
-      value = item.value.replace(this.searchTerm.substring(), "<strong>$&</strong>");
-      anchor.append(value);
       return li.appendTo(ul);
     }
   });

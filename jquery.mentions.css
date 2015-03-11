@@ -32,3 +32,8 @@
   background-color: #a3bcea;
   filter: progid:DXImageTransform.Microsoft.Alpha(opacity=0);
 }
+
+.ui-autocomplete .ui-list-header{
+  padding: 10px;
+  font-weight: bold;
+}
