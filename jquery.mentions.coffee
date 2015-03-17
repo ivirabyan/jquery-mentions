@@ -25,13 +25,6 @@ escapeHtml = (text) ->
         entityMap[s]
 
 
-settings =
-    delay: 0
-    trigger: '@',
-    autoFocus: true
-
-
-
 $.widget( "ui.areacomplete", $.ui.autocomplete,
     options: $.extend({}, $.ui.autocomplete.prototype.options,
         matcher: "(\\b[^,]*)",
@@ -145,7 +138,7 @@ class MentionsBase
     marker: '\uFEFF',
 
     constructor: (@input, options) ->
-        @options = $.extend({}, settings, options)
+        @options = $.extend({}, @settings, options)
         if not @options.source
             @options.source = @input.data('source') or []
 
@@ -159,7 +152,6 @@ class MentionsBase
 
 class MentionsInput extends MentionsBase
     Key = LEFT : 37, RIGHT : 39
-
     mimicProperties = [
         'backgroundColor', 'marginTop', 'marginBottom', 'marginLeft', 'marginRight',
         'paddingTop', 'paddingBottom', 'paddingLeft', 'paddingRight',
@@ -168,6 +160,12 @@ class MentionsInput extends MentionsBase
     ]
 
     constructor: (@input, options) ->
+        @settings =
+            delay: 0
+            trigger: '@',
+            autoFocus: true,
+            widget: 'areacomplete'
+
         super @input, options
 
         @mentions = []
@@ -187,7 +185,7 @@ class MentionsInput extends MentionsBase
             @highlighter.removeClass('focus')
         )
 
-        @autocomplete = @input.areacomplete(
+        @autocomplete = @input[@options.widget](
             matcher: @_getMatcher(),
             suffix: @marker,
             select: @_onSelect,
@@ -362,8 +360,14 @@ class MentionsContenteditable extends MentionsBase
     selector: '[data-mention]',
 
     constructor: (@input, options) ->
+        @settings =
+            delay: 0
+            trigger: '@',
+            autoFocus: true,
+            widget: 'editablecomplete'
+
         super @input, options
-        @autocomplete = @input.editablecomplete(
+        @autocomplete = @input[@options.widget](
             matcher: @_getMatcher(),
             suffix: @marker,
             select: @_onSelect,

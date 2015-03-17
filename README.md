@@ -67,6 +67,9 @@ Don't use textarea value directly, because it contains special characters, used 
 #### autoFocus
   If this is true, first item is automatically focused in the dropdown. Default is true.
 
+#### widget
+  Autocomplete widget to use. May be useful when you want to somehow customize appearance of autocomplete widget, for example add headers to items list. You must inherit from widget, used internally (`ui.areacomplete` when you use textarea, and `ui.editablecomplete` when you use div with `contenteditable=true`).
+
 ## Methods
 
 #### getValue()
