@@ -304,7 +304,9 @@ class MentionsInput extends MentionsBase
         @_addMention(name: ui.item.value, pos: ui.item.pos, uid: ui.item.uid)
 
     _updateValue: =>
-        value = hlContent = escapeHtml(@input.val())
+        value = @input.val()
+        hlContent = escapeHtml(value)
+
         for mention in @mentions
             markedName = @_mark(mention.name)
             hlContent = hlContent.replace(markedName, "<strong>#{mention.name}</strong>")

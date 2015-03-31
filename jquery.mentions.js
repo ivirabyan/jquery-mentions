@@ -405,7 +405,8 @@
 
     MentionsInput.prototype._updateValue = function() {
       var hlContent, markedName, mention, value, _i, _len, _ref;
-      value = hlContent = escapeHtml(this.input.val());
+      value = this.input.val();
+      hlContent = escapeHtml(value);
       _ref = this.mentions;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         mention = _ref[_i];
