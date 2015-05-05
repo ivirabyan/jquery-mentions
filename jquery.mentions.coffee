@@ -28,7 +28,6 @@ escapeHtml = (text) ->
 $.widget( "ui.areacomplete", $.ui.autocomplete,
     options: $.extend({}, $.ui.autocomplete.prototype.options,
         matcher: "(\\b[^,]*)",
-        suffix: ', '
     )
 
     _create: ->
@@ -45,7 +44,7 @@ $.widget( "ui.areacomplete", $.ui.autocomplete,
         value = @_value()
         before = value.substring(0, @start)
         after = value.substring(@end)
-        newval = ui.item.value + @options.suffix
+        newval = ui.item.value
         value = before + newval + after
         if @overriden.select
             ui.item.pos = @start
@@ -151,7 +150,6 @@ class MentionsBase
 
 
 class MentionsInput extends MentionsBase
-    Key = LEFT : 37, RIGHT : 39
     mimicProperties = [
         'backgroundColor', 'marginTop', 'marginBottom', 'marginLeft', 'marginRight',
         'paddingTop', 'paddingBottom', 'paddingLeft', 'paddingRight',
@@ -187,7 +185,6 @@ class MentionsInput extends MentionsBase
 
         @autocomplete = @input[@options.widget](
             matcher: @_getMatcher(),
-            suffix: @marker,
             select: @_onSelect,
             source: @options.source,
             delay: @options.delay,
@@ -200,10 +197,6 @@ class MentionsInput extends MentionsBase
 
     _initEvents: ->
         @input.on("input.#{namespace} change.#{namespace}", @_update)
-
-        @input.on("keydown.#{namespace}", (event) =>
-            setTimeout((=> @_handleLeftRight(event)), 10)
-        )
 
         tagName = @input.prop("tagName")
         if tagName == "INPUT"
@@ -220,15 +213,15 @@ class MentionsInput extends MentionsBase
 
     _setValue: (value) ->
         mentionRE = /@\[([^\]]+)\]\(([^ \)]+)\)/g
-        markedValue = value.replace(mentionRE, @_mark('$1'))
-        @input.val(markedValue)
+        @value = value.replace(mentionRE, '$1')
+        @input.val(@value)
 
         match = mentionRE.exec(value)
         while match
             @_addMention(
                 name: match[1],
                 uid: match[2],
-                pos = markedValue.indexOf(@_mark(match[1]))
+                pos: @value.indexOf(match[1])
             )
             match = mentionRE.exec(value)
         @_updateValue()
@@ -256,64 +249,62 @@ class MentionsInput extends MentionsBase
         @input.css 'backgroundColor', 'transparent'
         return highlighter
 
-    _handleLeftRight: (event) =>
-        if event.keyCode == Key.LEFT or event.keyCode == Key.RIGHT
-            value = @input.val()
-            sel = Selection.get(@input)
-            delta = if event.keyCode == Key.LEFT then -1 else 1
-            deltaStart = if value.charAt(sel.start) == @marker then delta else 0
-            deltaEnd = if value.charAt(sel.end) == @marker then delta else 0
-
-            if deltaStart or deltaEnd
-                Selection.set(@input, sel.start + deltaStart, sel.end + deltaEnd)
-
-    _mark: (name) =>
-        name + @marker
-
     _update: =>
         @_updateMentions()
         @_updateValue()
 
     _updateMentions: =>
         value = @input.val()
-        if value
-            for mention, i in @mentions[..]
-                marked = @_mark(mention.name)
-                index = value.indexOf(marked)
-                if index == -1
-                    @mentions.splice(i, 1)
-                else
-                    mention.pos = index
-                value = @_replaceWithSpaces(value, marked)
+        diff = diffChars(@value, value)
 
-            # remove orphan markers
-            newval = @input.val()
-            while (index = value.indexOf(@marker)) >= 0
-                value = @_cutChar(value, index)
-                newval = @_cutChar(newval, index)
+        update_pos = (cursor, delta) =>
+            for mention in @mentions
+                if mention.pos >= cursor
+                    mention.pos += delta
 
-            if value != newval
-                selection = Selection.get(@input)
-                @input.val(newval)
-                Selection.set(@input, selection.start)
+        cursor = 0
+        for change in diff
+            if change.added
+                update_pos(cursor, change.count)
+            else if change.removed
+                update_pos(cursor, -change.count)
+            if not change.removed
+                cursor += change.count
+
+        for mention, i in @mentions[..]
+            piece = value.substring(mention.pos, mention.pos + mention.name.length)
+            console.log(mention.name, piece)
+            if mention.name != piece
+                @mentions.splice(i, 1)
+        @value = value
 
     _addMention: (mention) =>
         @mentions.push(mention)
+        @mentions.sort (a, b) ->
+            return a.pos - b.pos
 
     _onSelect: (event, ui) =>
         @_addMention(name: ui.item.value, pos: ui.item.pos, uid: ui.item.uid)
 
     _updateValue: =>
         value = @input.val()
-        hlContent = escapeHtml(value)
+        hlContent = []
+        hdContent = []
+        cursor = 0
 
         for mention in @mentions
-            markedName = @_mark(mention.name)
-            hlContent = hlContent.replace(markedName, "<strong>#{mention.name}</strong>")
-            value = value.replace(markedName, @_markupMention(mention))
+            piece = value.substring(cursor, mention.pos)
+            hlContent.push(escapeHtml(piece))
+            hdContent.push(piece)
 
-        @hidden.val(value)
-        @highlighterContent.html(hlContent)
+            hlContent.push("<strong>#{mention.name}</strong>")
+            hdContent.push(@_markupMention(mention))
+
+            cursor = mention.pos + mention.name.length
+
+        piece = value.substring(cursor)
+        @highlighterContent.html(hlContent.join('') + escapeHtml(piece))
+        @hidden.val(hdContent.join('') + piece)
 
     _updateVScroll: =>
         scrollTop = @input.scrollTop()
@@ -477,6 +468,152 @@ class MentionsContenteditable extends MentionsBase
         @input.off ".#{namespace}"
         @input.html @getValue()
 
+
+`
+/*
+    Copyright (c) 2009-2011, Kevin Decker <kpdecker@gmail.com>
+*/
+function diffChars(oldString, newString) {
+  // Handle the identity case (this is due to unrolling editLength == 0
+  if (newString === oldString) {
+    return [{ value: newString }];
+  }
+  if (!newString) {
+    return [{ value: oldString, removed: true }];
+  }
+  if (!oldString) {
+    return [{ value: newString, added: true }];
+  }
+
+  var newLen = newString.length, oldLen = oldString.length;
+  var maxEditLength = newLen + oldLen;
+  var bestPath = [{ newPos: -1, components: [] }];
+
+  // Seed editLength = 0, i.e. the content starts with the same values
+  var oldPos = extractCommon(bestPath[0], newString, oldString, 0);
+  if (bestPath[0].newPos+1 >= newLen && oldPos+1 >= oldLen) {
+    // Identity per the equality and tokenizer
+    return [{value: newString}];
+  }
+
+  // Main worker method. checks all permutations of a given edit length for acceptance.
+  function execEditLength() {
+    for (var diagonalPath = -1*editLength; diagonalPath <= editLength; diagonalPath+=2) {
+      var basePath;
+      var addPath = bestPath[diagonalPath-1],
+          removePath = bestPath[diagonalPath+1];
+      oldPos = (removePath ? removePath.newPos : 0) - diagonalPath;
+      if (addPath) {
+        // No one else is going to attempt to use this value, clear it
+        bestPath[diagonalPath-1] = undefined;
+      }
+
+      var canAdd = addPath && addPath.newPos+1 < newLen;
+      var canRemove = removePath && 0 <= oldPos && oldPos < oldLen;
+      if (!canAdd && !canRemove) {
+        // If this path is a terminal then prune
+        bestPath[diagonalPath] = undefined;
+        continue;
+      }
+
+      // Select the diagonal that we want to branch from. We select the prior
+      // path whose position in the new string is the farthest from the origin
+      // and does not pass the bounds of the diff graph
+      if (!canAdd || (canRemove && addPath.newPos < removePath.newPos)) {
+        basePath = clonePath(removePath);
+        pushComponent(basePath.components, undefined, true);
+      } else {
+        basePath = addPath;   // No need to clone, we've pulled it from the list
+        basePath.newPos++;
+        pushComponent(basePath.components, true, undefined);
+      }
+
+      var oldPos = extractCommon(basePath, newString, oldString, diagonalPath);
+
+      // If we have hit the end of both strings, then we are done
+      if (basePath.newPos+1 >= newLen && oldPos+1 >= oldLen) {
+        return buildValues(basePath.components, newString, oldString);
+      } else {
+        // Otherwise track this path as a potential candidate and continue.
+        bestPath[diagonalPath] = basePath;
+      }
+    }
+
+    editLength++;
+  }
+
+  // Performs the length of edit iteration. Is a bit fugly as this has to support the
+  // sync and async mode which is never fun. Loops over execEditLength until a value
+  // is produced.
+  var editLength = 1;
+  while(editLength <= maxEditLength) {
+    var ret = execEditLength();
+    if (ret) {
+      return ret;
+    }
+  }
+}
+
+function buildValues(components, newString, oldString) {
+    var componentPos = 0,
+        componentLen = components.length,
+        newPos = 0,
+        oldPos = 0;
+
+    for (; componentPos < componentLen; componentPos++) {
+      var component = components[componentPos];
+      if (!component.removed) {
+        component.value = newString.slice(newPos, newPos + component.count);
+        newPos += component.count;
+
+        // Common case
+        if (!component.added) {
+          oldPos += component.count;
+        }
+      } else {
+        component.value = oldString.slice(oldPos, oldPos + component.count);
+        oldPos += component.count;
+      }
+    }
+
+    return components;
+  }
+
+function pushComponent(components, added, removed) {
+  var last = components[components.length-1];
+  if (last && last.added === added && last.removed === removed) {
+    // We need to clone here as the component clone operation is just
+    // as shallow array clone
+    components[components.length-1] = {count: last.count + 1, added: added, removed: removed };
+  } else {
+    components.push({count: 1, added: added, removed: removed });
+  }
+}
+
+function extractCommon(basePath, newString, oldString, diagonalPath) {
+  var newLen = newString.length,
+      oldLen = oldString.length,
+      newPos = basePath.newPos,
+      oldPos = newPos - diagonalPath,
+
+      commonCount = 0;
+  while (newPos+1 < newLen && oldPos+1 < oldLen && newString[newPos+1] == oldString[oldPos+1]) {
+    newPos++;
+    oldPos++;
+    commonCount++;
+  }
+
+  if (commonCount) {
+    basePath.components.push({count: commonCount});
+  }
+
+  basePath.newPos = newPos;
+  return oldPos;
+}
+
+function clonePath(path) {
+    return { newPos: path.newPos, components: path.components.slice(0) };
+}`
 
 
 $.fn[namespace] = (options, args...) ->

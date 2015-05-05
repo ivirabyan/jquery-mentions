@@ -43,8 +43,7 @@
 
   $.widget("ui.areacomplete", $.ui.autocomplete, {
     options: $.extend({}, $.ui.autocomplete.prototype.options, {
-      matcher: "(\\b[^,]*)",
-      suffix: ', '
+      matcher: "(\\b[^,]*)"
     }),
     _create: function() {
       this.overriden = {
@@ -61,7 +60,7 @@
       value = this._value();
       before = value.substring(0, this.start);
       after = value.substring(this.end);
-      newval = ui.item.value + this.options.suffix;
+      newval = ui.item.value;
       value = before + newval + after;
       if (this.overriden.select) {
         ui.item.pos = this.start;
@@ -190,14 +189,9 @@
   })();
 
   MentionsInput = (function(_super) {
-    var Key, mimicProperties;
+    var mimicProperties;
 
     __extends(MentionsInput, _super);
-
-    Key = {
-      LEFT: 37,
-      RIGHT: 39
-    };
 
     mimicProperties = ['backgroundColor', 'marginTop', 'marginBottom', 'marginLeft', 'marginRight', 'paddingTop', 'paddingBottom', 'paddingLeft', 'paddingRight', 'borderTopWidth', 'borderLeftWidth', 'borderBottomWidth', 'borderRightWidth', 'fontSize', 'fontStyle', 'fontFamily', 'fontWeight', 'lineHeight', 'height', 'boxSizing'];
 
@@ -211,8 +205,6 @@
       this._addMention = __bind(this._addMention, this);
       this._updateMentions = __bind(this._updateMentions, this);
       this._update = __bind(this._update, this);
-      this._mark = __bind(this._mark, this);
-      this._handleLeftRight = __bind(this._handleLeftRight, this);
       this.settings = {
         delay: 0,
         trigger: '@',
@@ -241,7 +233,6 @@
       })(this));
       this.autocomplete = this.input[this.options.widget]({
         matcher: this._getMatcher(),
-        suffix: this.marker,
         select: this._onSelect,
         source: this.options.source,
         delay: this.options.delay,
@@ -255,13 +246,6 @@
     MentionsInput.prototype._initEvents = function() {
       var tagName;
       this.input.on("input." + namespace + " change." + namespace, this._update);
-      this.input.on("keydown." + namespace, (function(_this) {
-        return function(event) {
-          return setTimeout((function() {
-            return _this._handleLeftRight(event);
-          }), 10);
-        };
-      })(this));
       tagName = this.input.prop("tagName");
       if (tagName === "INPUT") {
         this.input.on("focus." + namespace, (function(_this) {
@@ -290,16 +274,17 @@
     };
 
     MentionsInput.prototype._setValue = function(value) {
-      var markedValue, match, mentionRE, pos;
+      var match, mentionRE;
       mentionRE = /@\[([^\]]+)\]\(([^ \)]+)\)/g;
-      markedValue = value.replace(mentionRE, this._mark('$1'));
-      this.input.val(markedValue);
+      this.value = value.replace(mentionRE, '$1');
+      this.input.val(this.value);
       match = mentionRE.exec(value);
       while (match) {
         this._addMention({
           name: match[1],
-          uid: match[2]
-        }, pos = markedValue.indexOf(this._mark(match[1])));
+          uid: match[2],
+          pos: this.value.indexOf(match[1])
+        });
         match = mentionRE.exec(value);
       }
       return this._updateValue();
@@ -339,60 +324,60 @@
       return highlighter;
     };
 
-    MentionsInput.prototype._handleLeftRight = function(event) {
-      var delta, deltaEnd, deltaStart, sel, value;
-      if (event.keyCode === Key.LEFT || event.keyCode === Key.RIGHT) {
-        value = this.input.val();
-        sel = Selection.get(this.input);
-        delta = event.keyCode === Key.LEFT ? -1 : 1;
-        deltaStart = value.charAt(sel.start) === this.marker ? delta : 0;
-        deltaEnd = value.charAt(sel.end) === this.marker ? delta : 0;
-        if (deltaStart || deltaEnd) {
-          return Selection.set(this.input, sel.start + deltaStart, sel.end + deltaEnd);
-        }
-      }
-    };
-
-    MentionsInput.prototype._mark = function(name) {
-      return name + this.marker;
-    };
-
     MentionsInput.prototype._update = function() {
       this._updateMentions();
       return this._updateValue();
     };
 
     MentionsInput.prototype._updateMentions = function() {
-      var i, index, marked, mention, newval, selection, value, _i, _len, _ref;
+      var change, cursor, diff, i, mention, piece, update_pos, value, _i, _j, _len, _len1, _ref;
       value = this.input.val();
-      if (value) {
-        _ref = this.mentions.slice(0);
-        for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
-          mention = _ref[i];
-          marked = this._mark(mention.name);
-          index = value.indexOf(marked);
-          if (index === -1) {
-            this.mentions.splice(i, 1);
-          } else {
-            mention.pos = index;
+      diff = diffChars(this.value, value);
+      update_pos = (function(_this) {
+        return function(cursor, delta) {
+          var mention, _i, _len, _ref, _results;
+          _ref = _this.mentions;
+          _results = [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            mention = _ref[_i];
+            if (mention.pos >= cursor) {
+              _results.push(mention.pos += delta);
+            } else {
+              _results.push(void 0);
+            }
           }
-          value = this._replaceWithSpaces(value, marked);
+          return _results;
+        };
+      })(this);
+      cursor = 0;
+      for (_i = 0, _len = diff.length; _i < _len; _i++) {
+        change = diff[_i];
+        if (change.added) {
+          update_pos(cursor, change.count);
+        } else if (change.removed) {
+          update_pos(cursor, -change.count);
         }
-        newval = this.input.val();
-        while ((index = value.indexOf(this.marker)) >= 0) {
-          value = this._cutChar(value, index);
-          newval = this._cutChar(newval, index);
-        }
-        if (value !== newval) {
-          selection = Selection.get(this.input);
-          this.input.val(newval);
-          return Selection.set(this.input, selection.start);
+        if (!change.removed) {
+          cursor += change.count;
         }
       }
+      _ref = this.mentions.slice(0);
+      for (i = _j = 0, _len1 = _ref.length; _j < _len1; i = ++_j) {
+        mention = _ref[i];
+        piece = value.substring(mention.pos, mention.pos + mention.name.length);
+        console.log(mention.name, piece);
+        if (mention.name !== piece) {
+          this.mentions.splice(i, 1);
+        }
+      }
+      return this.value = value;
     };
 
     MentionsInput.prototype._addMention = function(mention) {
-      return this.mentions.push(mention);
+      this.mentions.push(mention);
+      return this.mentions.sort(function(a, b) {
+        return a.pos - b.pos;
+      });
     };
 
     MentionsInput.prototype._onSelect = function(event, ui) {
@@ -404,18 +389,24 @@
     };
 
     MentionsInput.prototype._updateValue = function() {
-      var hlContent, markedName, mention, value, _i, _len, _ref;
+      var cursor, hdContent, hlContent, mention, piece, value, _i, _len, _ref;
       value = this.input.val();
-      hlContent = escapeHtml(value);
+      hlContent = [];
+      hdContent = [];
+      cursor = 0;
       _ref = this.mentions;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         mention = _ref[_i];
-        markedName = this._mark(mention.name);
-        hlContent = hlContent.replace(markedName, "<strong>" + mention.name + "</strong>");
-        value = value.replace(markedName, this._markupMention(mention));
+        piece = value.substring(cursor, mention.pos);
+        hlContent.push(escapeHtml(piece));
+        hdContent.push(piece);
+        hlContent.push("<strong>" + mention.name + "</strong>");
+        hdContent.push(this._markupMention(mention));
+        cursor = mention.pos + mention.name.length;
       }
-      this.hidden.val(value);
-      return this.highlighterContent.html(hlContent);
+      piece = value.substring(cursor);
+      this.highlighterContent.html(hlContent.join('') + escapeHtml(piece));
+      return this.hidden.val(hdContent.join('') + piece);
     };
 
     MentionsInput.prototype._updateVScroll = function() {
@@ -647,6 +638,152 @@
     return MentionsContenteditable;
 
   })(MentionsBase);
+
+  
+/*
+    Copyright (c) 2009-2011, Kevin Decker <kpdecker@gmail.com>
+*/
+function diffChars(oldString, newString) {
+  // Handle the identity case (this is due to unrolling editLength == 0
+  if (newString === oldString) {
+    return [{ value: newString }];
+  }
+  if (!newString) {
+    return [{ value: oldString, removed: true }];
+  }
+  if (!oldString) {
+    return [{ value: newString, added: true }];
+  }
+
+  var newLen = newString.length, oldLen = oldString.length;
+  var maxEditLength = newLen + oldLen;
+  var bestPath = [{ newPos: -1, components: [] }];
+
+  // Seed editLength = 0, i.e. the content starts with the same values
+  var oldPos = extractCommon(bestPath[0], newString, oldString, 0);
+  if (bestPath[0].newPos+1 >= newLen && oldPos+1 >= oldLen) {
+    // Identity per the equality and tokenizer
+    return [{value: newString}];
+  }
+
+  // Main worker method. checks all permutations of a given edit length for acceptance.
+  function execEditLength() {
+    for (var diagonalPath = -1*editLength; diagonalPath <= editLength; diagonalPath+=2) {
+      var basePath;
+      var addPath = bestPath[diagonalPath-1],
+          removePath = bestPath[diagonalPath+1];
+      oldPos = (removePath ? removePath.newPos : 0) - diagonalPath;
+      if (addPath) {
+        // No one else is going to attempt to use this value, clear it
+        bestPath[diagonalPath-1] = undefined;
+      }
+
+      var canAdd = addPath && addPath.newPos+1 < newLen;
+      var canRemove = removePath && 0 <= oldPos && oldPos < oldLen;
+      if (!canAdd && !canRemove) {
+        // If this path is a terminal then prune
+        bestPath[diagonalPath] = undefined;
+        continue;
+      }
+
+      // Select the diagonal that we want to branch from. We select the prior
+      // path whose position in the new string is the farthest from the origin
+      // and does not pass the bounds of the diff graph
+      if (!canAdd || (canRemove && addPath.newPos < removePath.newPos)) {
+        basePath = clonePath(removePath);
+        pushComponent(basePath.components, undefined, true);
+      } else {
+        basePath = addPath;   // No need to clone, we've pulled it from the list
+        basePath.newPos++;
+        pushComponent(basePath.components, true, undefined);
+      }
+
+      var oldPos = extractCommon(basePath, newString, oldString, diagonalPath);
+
+      // If we have hit the end of both strings, then we are done
+      if (basePath.newPos+1 >= newLen && oldPos+1 >= oldLen) {
+        return buildValues(basePath.components, newString, oldString);
+      } else {
+        // Otherwise track this path as a potential candidate and continue.
+        bestPath[diagonalPath] = basePath;
+      }
+    }
+
+    editLength++;
+  }
+
+  // Performs the length of edit iteration. Is a bit fugly as this has to support the
+  // sync and async mode which is never fun. Loops over execEditLength until a value
+  // is produced.
+  var editLength = 1;
+  while(editLength <= maxEditLength) {
+    var ret = execEditLength();
+    if (ret) {
+      return ret;
+    }
+  }
+}
+
+function buildValues(components, newString, oldString) {
+    var componentPos = 0,
+        componentLen = components.length,
+        newPos = 0,
+        oldPos = 0;
+
+    for (; componentPos < componentLen; componentPos++) {
+      var component = components[componentPos];
+      if (!component.removed) {
+        component.value = newString.slice(newPos, newPos + component.count);
+        newPos += component.count;
+
+        // Common case
+        if (!component.added) {
+          oldPos += component.count;
+        }
+      } else {
+        component.value = oldString.slice(oldPos, oldPos + component.count);
+        oldPos += component.count;
+      }
+    }
+
+    return components;
+  }
+
+function pushComponent(components, added, removed) {
+  var last = components[components.length-1];
+  if (last && last.added === added && last.removed === removed) {
+    // We need to clone here as the component clone operation is just
+    // as shallow array clone
+    components[components.length-1] = {count: last.count + 1, added: added, removed: removed };
+  } else {
+    components.push({count: 1, added: added, removed: removed });
+  }
+}
+
+function extractCommon(basePath, newString, oldString, diagonalPath) {
+  var newLen = newString.length,
+      oldLen = oldString.length,
+      newPos = basePath.newPos,
+      oldPos = newPos - diagonalPath,
+
+      commonCount = 0;
+  while (newPos+1 < newLen && oldPos+1 < oldLen && newString[newPos+1] == oldString[oldPos+1]) {
+    newPos++;
+    oldPos++;
+    commonCount++;
+  }
+
+  if (commonCount) {
+    basePath.components.push({count: commonCount});
+  }
+
+  basePath.newPos = newPos;
+  return oldPos;
+}
+
+function clonePath(path) {
+    return { newPos: path.newPos, components: path.components.slice(0) };
+};
 
   $.fn[namespace] = function() {
     var args, options, returnValue;
