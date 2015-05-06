@@ -64,6 +64,7 @@
       value = before + newval + after;
       if (this.overriden.select) {
         ui.item.pos = this.start;
+        ui.value = value;
         if (this.overriden.select(event, ui) === false) {
           return false;
         }
@@ -365,7 +366,6 @@
       for (i = _j = 0, _len1 = _ref.length; _j < _len1; i = ++_j) {
         mention = _ref[i];
         piece = value.substring(mention.pos, mention.pos + mention.name.length);
-        console.log(mention.name, piece);
         if (mention.name !== piece) {
           this.mentions.splice(i, 1);
         }
@@ -381,11 +381,12 @@
     };
 
     MentionsInput.prototype._onSelect = function(event, ui) {
-      return this._addMention({
+      this._addMention({
         name: ui.item.value,
         pos: ui.item.pos,
         uid: ui.item.uid
       });
+      return this.value = ui.value;
     };
 
     MentionsInput.prototype._updateValue = function() {

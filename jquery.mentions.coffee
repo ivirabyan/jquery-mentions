@@ -48,6 +48,7 @@ $.widget( "ui.areacomplete", $.ui.autocomplete,
         value = before + newval + after
         if @overriden.select
             ui.item.pos = @start
+            ui.value = value
             if @overriden.select(event, ui) == false
                 return false
 
@@ -273,7 +274,6 @@ class MentionsInput extends MentionsBase
 
         for mention, i in @mentions[..]
             piece = value.substring(mention.pos, mention.pos + mention.name.length)
-            console.log(mention.name, piece)
             if mention.name != piece
                 @mentions.splice(i, 1)
         @value = value
@@ -285,6 +285,7 @@ class MentionsInput extends MentionsBase
 
     _onSelect: (event, ui) =>
         @_addMention(name: ui.item.value, pos: ui.item.pos, uid: ui.item.uid)
+        @value = ui.value
 
     _updateValue: =>
         value = @input.val()
