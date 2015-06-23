@@ -46,15 +46,12 @@ $.widget( "ui.areacomplete", $.ui.autocomplete,
         after = value.substring(@end)
         newval = ui.item.value
         value = before + newval + after
+        @_value(value)
+        Selection.set(@element, before.length + newval.length)
+
         if @overriden.select
             ui.item.pos = @start
-            ui.value = value
-            if @overriden.select(event, ui) == false
-                return false
-
-        @_value(value)
-        @element.change()
-        Selection.set(@element, before.length + newval.length)
+            @overriden.select(event, ui)
         return false
 
     focusCallback: ->
@@ -284,8 +281,9 @@ class MentionsInput extends MentionsBase
             return a.pos - b.pos
 
     _onSelect: (event, ui) =>
+        @_updateMentions()
         @_addMention(name: ui.item.value, pos: ui.item.pos, uid: ui.item.uid)
-        @value = ui.value
+        @_updateValue()
 
     _updateValue: =>
         value = @input.val()
