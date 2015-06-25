@@ -1,6 +1,6 @@
 jquery-mentions
 ===============
-More stable alternative to [podio's jquery.mentionsInput](https://github.com/podio/jquery-mentions-input) plugin, which is currently unmaintained.
+More stable alternative to [podio's jquery.mentionsInput](https://github.com/podio/jquery-mentions-input) plugin.
 
 Advantages over jquery.mentionsInput:
 - Many issues are solved
