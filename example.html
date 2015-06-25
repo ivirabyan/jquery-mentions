@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+<head>
+    <title>jquery.mentions example</title>
+    <meta http-equiv="x-ua-compatible" content="IE=edge">
+
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" href="jquery.mentions.css">
+
+    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+    <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+    <script src="jquery.mentions.js"></script>
+</head>
+<body>
+    <p>Try to type "@a"</p>
+    <p>Textarea example:</p>
+    <textarea class="mentions" name="text">@[alex](user:1) is my best friend! I love to play @[angry birds](game:5)</textarea>
+    
+    <p>Input example:</p>
+    <input class="mentions" name="text" value="@[alex](user:1) is my best friend! I love to play @[angry birds](game:5)" />
+
+    <p>Contenteditable example:</p>
+    <div class="mentions" contenteditable style="width: 300px; height: 200px; border: 1px solid #000">
+        <p>@[alex](user:1) <b>tratata</b> trololo</p>
+    </div>
+
+
+    <script>
+        $('.mentions').mentionsInput({
+            source: [
+                {value: 'alex', uid: 'user:1'},
+                {value: 'andrew', uid: 'user:2'},
+                {value: 'angry birds', uid: 'game:5'},
+                {value: 'assault', uid: 'game:3'}
+            ], 
+            showAtCaret: true
+        });
+    </script>
+</body>

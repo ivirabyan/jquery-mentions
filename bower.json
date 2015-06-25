@@ -1,0 +1,22 @@
+{
+  "name": "jquery-mentions",
+  "version": "1.0.0",
+  "homepage": "https://github.com/ivirabyan/jquery-mentions",
+  "authors": [
+    "Ivan Virabyan"
+  ],
+  "description": "More stable alternative to podio's jquery.mentionsInput plugin, which is currently unmaintained.",
+  "main": [
+    "jquery.mentions.js",
+    "jquery.mentions.css"
+  ],
+  "keywords": [
+    "jquery",
+    "jquery-mentions",
+    "mentions"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "jquery-ui": "~1.11.3"
+  }
+}
