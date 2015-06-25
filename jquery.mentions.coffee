@@ -132,7 +132,7 @@ $.widget( "ui.editablecomplete", $.ui.areacomplete,
 
 
 class MentionsBase
-    marker: '\uFEFF',
+    marker: '\u200B',
 
     constructor: (@input, options) ->
         @options = $.extend({}, @settings, options)

@@ -162,7 +162,7 @@
 
   MentionsBase = (function() {
 
-    MentionsBase.prototype.marker = '\uFEFF';
+    MentionsBase.prototype.marker = '\u200B';
 
     function MentionsBase(input, options) {
       this.input = input;
