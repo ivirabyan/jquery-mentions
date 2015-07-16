@@ -157,10 +157,12 @@ class MentionsInput extends MentionsBase
 
     constructor: (@input, options) ->
         @settings =
-            delay: 0
             trigger: '@',
-            autoFocus: true,
-            widget: 'areacomplete'
+            widget: 'areacomplete',
+            autocomplete: {
+                autoFocus: true,
+                delay: 0
+            }
 
         super @input, options
 
@@ -181,14 +183,13 @@ class MentionsInput extends MentionsBase
             @highlighter.removeClass('focus')
         )
 
-        @autocomplete = @input[@options.widget](
+        options = $.extend(
             matcher: @_getMatcher(),
             select: @_onSelect,
             source: @options.source,
-            delay: @options.delay,
-            appendTo: @input.parent(),
-            autoFocus: @options.autoFocus
-        )
+            appendTo: @input.parent()
+        , @options.autocomplete)
+        @autocomplete = @input[@options.widget](options)
 
         @_setValue(@input.val())
         @_initEvents()
@@ -353,21 +354,24 @@ class MentionsContenteditable extends MentionsBase
 
     constructor: (@input, options) ->
         @settings =
-            delay: 0
             trigger: '@',
-            autoFocus: true,
-            widget: 'editablecomplete'
+            widget: 'editablecomplete',
+            autocomplete: {
+                autoFocus: true,
+                delay: 0
+            }
 
         super @input, options
-        @autocomplete = @input[@options.widget](
+
+        options = $.extend(
             matcher: @_getMatcher(),
             suffix: @marker,
             select: @_onSelect,
             source: @options.source,
-            delay: @options.delay,
-            autoFocus: @options.autoFocus,
             showAtCaret: @options.showAtCaret
-        )
+        , @options.autocomplete)
+        @autocomplete = @input[@options.widget](options)
+
         @_setValue(@input.html())
         @_initEvents()
 

@@ -212,10 +212,12 @@
       this._update = __bind(this._update, this);
 
       this.settings = {
-        delay: 0,
         trigger: '@',
-        autoFocus: true,
-        widget: 'areacomplete'
+        widget: 'areacomplete',
+        autocomplete: {
+          autoFocus: true,
+          delay: 0
+        }
       };
       MentionsInput.__super__.constructor.call(this, this.input, options);
       this.mentions = [];
@@ -233,14 +235,13 @@
       }).blur(function() {
         return _this.highlighter.removeClass('focus');
       });
-      this.autocomplete = this.input[this.options.widget]({
+      options = $.extend({
         matcher: this._getMatcher(),
         select: this._onSelect,
         source: this.options.source,
-        delay: this.options.delay,
-        appendTo: this.input.parent(),
-        autoFocus: this.options.autoFocus
-      });
+        appendTo: this.input.parent()
+      }, this.options.autocomplete);
+      this.autocomplete = this.input[this.options.widget](options);
       this._setValue(this.input.val());
       this._initEvents();
     }
@@ -485,21 +486,22 @@
       this._addMention = __bind(this._addMention, this);
 
       this.settings = {
-        delay: 0,
         trigger: '@',
-        autoFocus: true,
-        widget: 'editablecomplete'
+        widget: 'editablecomplete',
+        autocomplete: {
+          autoFocus: true,
+          delay: 0
+        }
       };
       MentionsContenteditable.__super__.constructor.call(this, this.input, options);
-      this.autocomplete = this.input[this.options.widget]({
+      options = $.extend({
         matcher: this._getMatcher(),
         suffix: this.marker,
         select: this._onSelect,
         source: this.options.source,
-        delay: this.options.delay,
-        autoFocus: this.options.autoFocus,
         showAtCaret: this.options.showAtCaret
-      });
+      }, this.options.autocomplete);
+      this.autocomplete = this.input[this.options.widget](options);
       this._setValue(this.input.html());
       this._initEvents();
     }

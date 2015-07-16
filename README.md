@@ -58,17 +58,15 @@ Don't use textarea value directly, because it contains special characters, used 
   Data source for the autocomplete. See [jQuery Autocomplete API](http://api.jqueryui.com/autocomplete/#option-source) for available values.
   
   Source data is an array of objects with `uid` and `value` properties: `[{uid: '123', value: 'Alex'}, ...]`. If you want to display an icon in dropdown list, you can add an `image` property to objects in the array.
-  
-#### delay
-  Delay for autocomplete to start searching. Default value is 0. More info in [jQuery Autocomplete API](http://api.jqueryui.com/autocomplete/#option-delay)
+
 #### trigger
   Char which trigger autocomplete, default value is '@'
 
-#### autoFocus
-  If this is true, first item is automatically focused in the dropdown. Default is true.
-
 #### widget
   Name of the autocomplete widget to use. May be useful when you want to somehow customize appearance of autocomplete widget, for example add headers to items list. You must inherit from widget, used internally (`ui.areacomplete` when you use textarea, and `ui.editablecomplete` when you use div with `contenteditable=true`).
+
+#### autocomplete
+  Options to pass to jQuery Autocomplete widget. Default is `{delay: 0, autoFocus: true}`.
 
 ## Methods
 
