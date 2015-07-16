@@ -2,6 +2,8 @@ jquery-mentions
 ===============
 More stable alternative to [podio's jquery.mentionsInput](https://github.com/podio/jquery-mentions-input) plugin.
 
+Live example: http://ivirabyan.github.io/jquery-mentions/
+
 Advantages over jquery.mentionsInput:
 - Many issues are solved
 - Input styles are copied to highlighter automatically
