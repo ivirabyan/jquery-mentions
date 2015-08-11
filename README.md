@@ -11,7 +11,6 @@ Advantages over jquery.mentionsInput:
 - Support for WYSIWYG editors
 - Hidden-input with markuped text created automatically
 - Uses jQuery UI autocomplete
-- The code is much smaller
 
 Solved issues of jquery.mentionsInput:
 - Adding spaces before mention shows overlay
