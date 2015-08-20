@@ -8,7 +8,7 @@ Advantages over jquery.mentionsInput:
 - Many issues are solved
 - Input styles are copied to highlighter automatically
 - Support for both textarea and input tags
-- Support for WYSIWYG editors
+- Support for contenteditable (and as a result support for some WYSIWYG editors)
 - Hidden-input with markuped text created automatically
 - Uses jQuery UI autocomplete
 
@@ -52,6 +52,20 @@ Getting value:
 
 Don't use textarea value directly, because it contains special characters, used by plugin internally. Always use methods.
 
+##### WYSIWYG editors
+To create WYSIWYG editor on your site, usually you create `<textarea>` tag, and then your editor replaces it with editor's visual representation, including element with `contenteditable="true"` attribute. So, to make `mentionsInput` plugin work, you need to apply the plugin to element  with `contenteditable="true"`. If you apply the plugin to your `<textarea>`, it'll not work.
+For example:
+```
+    <textarea id="content"></textarea>
+    <script>
+        $('#content').myEditor();
+        // Now your editor is initialized, find element with contenteditable.
+        // For particular plugin you may find a better way to get such an element,
+        // maybe even write your own plugin.
+        var elEditable = $('[contenteditable=true]');
+        elEditable.mentionsInput({...});
+    </script>
+```
 
 ## Options
 
