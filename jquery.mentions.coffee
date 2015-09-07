@@ -211,6 +211,7 @@ class MentionsInput extends MentionsBase
             @input.on("resize.#{namespace}", (=> setTimeout(@_updateVScroll, 10)))
 
     _setValue: (value) ->
+        offset = 0
         mentionRE = /@\[([^\]]+)\]\(([^ \)]+)\)/g
         @value = value.replace(mentionRE, '$1')
         @input.val(@value)
@@ -220,8 +221,9 @@ class MentionsInput extends MentionsBase
             @_addMention(
                 name: match[1],
                 uid: match[2],
-                pos: @value.indexOf(match[1])
+                pos: match.index - offset
             )
+            offset += match[2].length + 5
             match = mentionRE.exec(value)
         @_updateValue()
 

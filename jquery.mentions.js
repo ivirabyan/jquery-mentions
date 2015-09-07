@@ -270,7 +270,8 @@
     };
 
     MentionsInput.prototype._setValue = function(value) {
-      var match, mentionRE;
+      var match, mentionRE, offset;
+      offset = 0;
       mentionRE = /@\[([^\]]+)\]\(([^ \)]+)\)/g;
       this.value = value.replace(mentionRE, '$1');
       this.input.val(this.value);
@@ -279,8 +280,9 @@
         this._addMention({
           name: match[1],
           uid: match[2],
-          pos: this.value.indexOf(match[1])
+          pos: match.index - offset
         });
+        offset += match[2].length + 5;
         match = mentionRE.exec(value);
       }
       return this._updateValue();
