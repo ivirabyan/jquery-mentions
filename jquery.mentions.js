@@ -359,7 +359,7 @@
         }
       }
       _ref = this.mentions.slice(0);
-      for (i = _j = 0, _len1 = _ref.length; _j < _len1; i = ++_j) {
+      for (i = _j = _ref.length - 1; _j >= 0; i = _j += -1) {
         mention = _ref[i];
         piece = value.substring(mention.pos, mention.pos + mention.name.length);
         if (mention.name !== piece) {
