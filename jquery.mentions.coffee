@@ -272,7 +272,7 @@ class MentionsInput extends MentionsBase
             if not change.removed
                 cursor += change.count
 
-        for mention, i in @mentions[..]
+        for mention, i in @mentions[..] by -1
             piece = value.substring(mention.pos, mention.pos + mention.name.length)
             if mention.name != piece
                 @mentions.splice(i, 1)
