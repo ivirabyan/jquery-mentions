@@ -1,6 +1,8 @@
 jquery-mentions
 ===============
-More stable alternative to [podio's jquery.mentionsInput](https://github.com/podio/jquery-mentions-input) plugin.
+Adds mentioning support to your text fields.
+
+It's a more robust alternative to [podio's jquery.mentionsInput](https://github.com/podio/jquery-mentions-input) plugin.
 
 Live example: http://ivirabyan.github.io/jquery-mentions/
 
