@@ -612,18 +612,31 @@
     };
 
     MentionsContenteditable.prototype.getValue = function() {
-      var value;
+      var markupMention, value;
       value = this.input.clone();
+      markupMention = this._markupMention;
       $(this.selector, value).replaceWith(function() {
         var name, uid;
         uid = $(this).data('mention');
         name = $(this).text();
-        return this._markupMention({
+        return markupMention({
           name: name,
           uid: uid
         });
       });
       return value.html().replace(this.marker, '');
+    };
+
+    MentionsContenteditable.prototype.getMentions = function() {
+      var mentions;
+      mentions = [];
+      $(this.selector, this.input).each(function() {
+        return mentions.push({
+          uid: $(this).data('mention'),
+          name: $(this).text()
+        });
+      });
+      return mentions;
     };
 
     MentionsContenteditable.prototype.clear = function() {

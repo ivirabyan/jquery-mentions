@@ -458,11 +458,20 @@ class MentionsContenteditable extends MentionsBase
 
     getValue: ->
         value = @input.clone()
+        markupMention = @_markupMention
         $(@selector, value).replaceWith ->
             uid = $(this).data 'mention'
             name = $(this).text()
-            return @_markupMention({name: name, uid: uid})
+            return markupMention({name: name, uid: uid})
         value.html().replace(@marker, '')
+
+    getMentions: ->
+        mentions = []
+        $(@selector, @input).each ->
+            mentions.push
+                uid: $(this).data 'mention'
+                name: $(this).text()
+        return mentions
 
     clear: ->
         @input.html('')
