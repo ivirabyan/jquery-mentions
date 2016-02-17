@@ -76,6 +76,9 @@ For example:
   
   Source data is an array of objects with `uid` and `value` properties: `[{uid: '123', value: 'Alex'}, ...]`. If you want to display an icon in dropdown list, you can add an `image` property to objects in the array.
 
+### suffix
+  String to add to selected mention when it is inserted in text. Can be usefull if you wish to automatically insert a space after mention. For that case: `$textarea.mentionsInput({suffix: ' '})`
+
 #### trigger
   Char which trigger autocomplete, default value is '@'
 
