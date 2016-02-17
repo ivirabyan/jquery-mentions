@@ -78,6 +78,7 @@ For example:
 
 ### suffix
   String to add to selected mention when it is inserted in text. Can be usefull if you wish to automatically insert a space after mention. For that case: `$textarea.mentionsInput({suffix: ' '})`
+  Note: only supported for textarea and input. Contenteditable does not support this option yet.
 
 #### trigger
   Char which trigger autocomplete, default value is '@'
