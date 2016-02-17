@@ -43,7 +43,8 @@
 
   $.widget("ui.areacomplete", $.ui.autocomplete, {
     options: $.extend({}, $.ui.autocomplete.prototype.options, {
-      matcher: "(\\b[^,]*)"
+      matcher: "(\\b[^,]*)",
+      suffix: ''
     }),
     _create: function() {
       this.overriden = {
@@ -60,7 +61,7 @@
       value = this._value();
       before = value.substring(0, this.start);
       after = value.substring(this.end);
-      newval = ui.item.value;
+      newval = ui.item.value + this.options.suffix;
       value = before + newval + after;
       this._value(value);
       Selection.set(this.element, before.length + newval.length);
@@ -205,6 +206,7 @@
       this.settings = {
         trigger: '@',
         widget: 'areacomplete',
+        suffix: '',
         autocomplete: {
           autoFocus: true,
           delay: 0
@@ -233,6 +235,7 @@
       options = $.extend({
         matcher: this._getMatcher(),
         select: this._onSelect,
+        suffix: this.options.suffix,
         source: this.options.source,
         appendTo: this.input.parent()
       }, this.options.autocomplete);

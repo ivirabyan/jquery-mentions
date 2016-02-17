@@ -28,6 +28,7 @@ escapeHtml = (text) ->
 $.widget( "ui.areacomplete", $.ui.autocomplete,
     options: $.extend({}, $.ui.autocomplete.prototype.options,
         matcher: "(\\b[^,]*)",
+        suffix: ''
     )
 
     _create: ->
@@ -44,7 +45,7 @@ $.widget( "ui.areacomplete", $.ui.autocomplete,
         value = @_value()
         before = value.substring(0, @start)
         after = value.substring(@end)
-        newval = ui.item.value
+        newval = ui.item.value + @options.suffix
         value = before + newval + after
         @_value(value)
         Selection.set(@element, before.length + newval.length)
@@ -159,6 +160,7 @@ class MentionsInput extends MentionsBase
         @settings =
             trigger: '@',
             widget: 'areacomplete',
+            suffix: '',
             autocomplete: {
                 autoFocus: true,
                 delay: 0
@@ -186,6 +188,7 @@ class MentionsInput extends MentionsBase
         options = $.extend(
             matcher: @_getMatcher(),
             select: @_onSelect,
+            suffix: @options.suffix,
             source: @options.source,
             appendTo: @input.parent()
         , @options.autocomplete)
