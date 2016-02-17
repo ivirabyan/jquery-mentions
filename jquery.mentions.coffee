@@ -44,7 +44,7 @@ $.widget( "ui.areacomplete", $.ui.autocomplete,
         value = @_value()
         before = value.substring(0, @start)
         after = value.substring(@end)
-        newval = ui.item.value
+        newval = ui.item.value + ' '
         value = before + newval + after
         @_value(value)
         Selection.set(@element, before.length + newval.length)
