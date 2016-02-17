@@ -475,7 +475,6 @@ class MentionsContenteditable extends MentionsBase
 
     clear: ->
         @input.html('')
-        @_update()
 
     destroy: ->
         @input.editablecomplete "destroy"

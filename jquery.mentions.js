@@ -640,8 +640,7 @@
     };
 
     MentionsContenteditable.prototype.clear = function() {
-      this.input.html('');
-      return this._update();
+      return this.input.html('');
     };
 
     MentionsContenteditable.prototype.destroy = function() {
