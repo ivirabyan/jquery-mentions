@@ -24,6 +24,10 @@ escapeHtml = (text) ->
     text.replace /[&<>"'\/]/g, (s) ->
         entityMap[s]
 
+escapeRegExp = (str) ->
+    specials = /[.*+?|()\[\]{}\\$^]/g # .*+?|()[]{}\$^
+    return str.replace(specials, "\\$&")
+
 
 $.widget( "ui.areacomplete", $.ui.autocomplete,
     options: $.extend({}, $.ui.autocomplete.prototype.options,
@@ -79,7 +83,9 @@ $.widget( "ui.areacomplete", $.ui.autocomplete,
         anchor = $('<a>').appendTo(li)
         if item.image
             anchor.append("<img src=\"#{item.image}\" />")
-        value = item.value.replace(this.searchTerm.substring(), "<strong>$&</strong>")
+
+        regexp = new RegExp("(" + escapeRegExp(this.searchTerm) + ")", "gi");
+        value = item.value.replace(regexp, "<strong>$&</strong>")
         anchor.append(value)
         return li.appendTo(ul)
 )
