@@ -35,20 +35,23 @@ var data = [
 $('textarea').mentionsInput({source: data});
 ```
 
-Remote datasource (ajax):
+##### Remote datasource (ajax):
 
 ```
 $('textarea').mentionsInput({source: 'http://example.com/users.json'})
 ```
 The url is given a query paremeter `term`, like `http://example.com/users.json?term=Foo` and must return a json list of matched values (like the above).
 
-Calling a method:
+You can also provide custom function to `source` argument, for more info take a look at [jQuery Autocomplete docs](http://api.jqueryui.com/autocomplete/#option-source).
+
+
+##### Calling a method:
 ```
 $('textarea').mentionsInput('getValue');
 $('textarea').mentionsInput('setValue', 'Hello, @[Alex](user:1)');
 ```
 
-Getting value:
+##### Getting value:
 `$('textarea').mentionsInput('getValue')` -> `Hello, @[Alex](user:1)`
 `$('textarea').mentionsInput('getRawValue')` -> `Hello, Alex`
 
