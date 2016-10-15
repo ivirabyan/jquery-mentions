@@ -84,7 +84,7 @@ For example:
   Note: only supported for textarea and input. Contenteditable does not support this option yet.
 
 #### trigger
-  Char which trigger autocomplete, default value is '@'
+  Char which trigger autocomplete, default value is '@'. Multiple chars are supported, so if you set trigger='@#', both will trigger a search.
 
 #### widget
   Name of the autocomplete widget to use. May be useful when you want to somehow customize appearance of autocomplete widget, for example add headers to items list. You must inherit from widget, used internally (`ui.areacomplete` when you use textarea, and `ui.editablecomplete` when you use div with `contenteditable=true`).
