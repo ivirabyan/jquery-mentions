@@ -148,7 +148,7 @@ class MentionsBase
 
     _getMatcher: ->
         allowedChars = '[^' + @options.trigger + ']'
-        return '\\B[' + @options.trigger + '](' + allowedChars + '{0,20})'
+        return '[' + @options.trigger + '](' + allowedChars + '{0,20})'
 
     _markupMention: (mention) ->
         return "@[#{mention.name}](#{mention.uid})"

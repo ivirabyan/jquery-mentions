@@ -182,7 +182,7 @@
     MentionsBase.prototype._getMatcher = function() {
       var allowedChars;
       allowedChars = '[^' + this.options.trigger + ']';
-      return '\\B[' + this.options.trigger + '](' + allowedChars + '{0,20})';
+      return '[' + this.options.trigger + '](' + allowedChars + '{0,20})';
     };
 
     MentionsBase.prototype._markupMention = function(mention) {
