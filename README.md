@@ -58,6 +58,9 @@ $('textarea').mentionsInput('setValue', 'Hello, @[Alex](user:1)');
 Don't use textarea value directly, because it contains special characters, used by plugin internally. Always use methods.
 
 ##### WYSIWYG editors
+
+WARNING: This plugin does not currently work with editors, which use iframe.
+
 To create WYSIWYG editor on your site, usually you create `<textarea>` tag, and then your editor replaces it with editor's visual representation, including element with `contenteditable="true"` attribute. So, to make `mentionsInput` plugin work, you need to apply the plugin to element  with `contenteditable="true"`. If you apply the plugin to your `<textarea>`, it'll not work.
 For example:
 ```
