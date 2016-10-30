@@ -103,14 +103,14 @@ $.widget( "ui.editablecomplete", $.ui.areacomplete,
             if @overriden.select(event, ui) == false
                 return false
 
-        mention = document.createTextNode ui.item.value
+        mention = this.document[0].createTextNode ui.item.value
         insertMention mention, pos, @options.suffix
         @element.change()
         return false
 
     search: (value, event) ->
         if not value
-            sel = window.getSelection()
+            sel = this.window[0].getSelection();
             node = sel.focusNode
             value = node.textContent
             pos = sel.focusOffset
@@ -127,13 +127,14 @@ $.widget( "ui.editablecomplete", $.ui.areacomplete,
 
     _setDropdownPosition: (node) ->
         if @options.showAtCaret
-            boundary = document.createRange()
+            boundary = this.document[0].createRange()
             boundary.setStart node, @start
             boundary.collapse true
             rect = boundary.getClientRects()[0]
-            posX = rect.left + (window.scrollX || window.pageXOffset)
-            posY = rect.top + rect.height + (window.scrollY || window.pageYOffset)
-            @options.position.of = document
+            offset = $('iframe').offset()
+            posX = offset.left + rect.left + (this.window[0].scrollX || this.window[0].pageXOffset)
+            posY = offset.top + rect.top + rect.height + (this.window[0].scrollY || this.window[0].pageYOffset)
+            @options.position.of = this.document[0]
             @options.position.at = "left+#{posX} top+#{posY}"
 )
 
@@ -364,6 +365,9 @@ class MentionsContenteditable extends MentionsBase
     selector: '[data-mention]',
 
     constructor: (@input, options) ->
+        @elDocument = @input[0].ownerDocument
+        @elWindow = @elDocument.defaultView
+
         @settings =
             trigger: '@',
             widget: 'editablecomplete',
@@ -379,7 +383,8 @@ class MentionsContenteditable extends MentionsBase
             suffix: @marker,
             select: @_onSelect,
             source: @options.source,
-            showAtCaret: @options.showAtCaret
+            showAtCaret: @options.showAtCaret,
+            appendTo: $('body')
         , @options.autocomplete)
         @autocomplete = @input[@options.widget](options)
 
@@ -389,8 +394,8 @@ class MentionsContenteditable extends MentionsBase
     mentionTpl = (mention) ->
         "<strong data-mention=\"#{mention.uid}\">#{mention.value}</strong>"
 
-    insertMention = (mention, pos, suffix) ->
-        selection = window.getSelection()
+    insertMention: (mention, pos, suffix) ->
+        selection = @elWindow.getSelection()
         node = selection.focusNode
 
         # delete old content and insert mention
@@ -402,7 +407,7 @@ class MentionsContenteditable extends MentionsBase
         range.insertNode mention
 
         if suffix
-            suffix = document.createTextNode suffix
+            suffix = @elDocument.createTextNode suffix
             $(suffix).insertAfter mention
             range.setStartAfter suffix
         else
@@ -425,7 +430,7 @@ class MentionsContenteditable extends MentionsBase
 
     _addMention: (data) =>
         mentionNode = $(mentionTpl data)[0]
-        mention = insertMention mentionNode, data.pos, @marker
+        mention = @insertMention mentionNode, data.pos, @marker
         @_watch mention
 
     _onSelect: (event, ui) =>
@@ -434,16 +439,16 @@ class MentionsContenteditable extends MentionsBase
         return false
 
     _watch: (mention) ->
-        mention.addEventListener 'DOMCharacterDataModified', (e) ->
+        mention.addEventListener 'DOMCharacterDataModified', (e) =>
             if e.newValue != e.prevValue
                 text = e.target
-                sel = window.getSelection()
+                sel = @elWindow.getSelection()
                 offset = sel.focusOffset
 
                 $(text).insertBefore mention
                 $(mention).remove()
 
-                range = document.createRange()
+                range = @elDocument.createRange()
                 range.setStart text, offset
                 range.collapse true
                 sel.removeAllRanges()

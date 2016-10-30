@@ -129,7 +129,7 @@
           return false;
         }
       }
-      mention = document.createTextNode(ui.item.value);
+      mention = this.document[0].createTextNode(ui.item.value);
       insertMention(mention, pos, this.options.suffix);
       this.element.change();
       return false;
@@ -137,7 +137,7 @@
     search: function(value, event) {
       var match, node, pos, sel;
       if (!value) {
-        sel = window.getSelection();
+        sel = this.window[0].getSelection();
         node = sel.focusNode;
         value = node.textContent;
         pos = sel.focusOffset;
@@ -154,15 +154,16 @@
       return $.ui.autocomplete.prototype.search.call(this, this.searchTerm, event);
     },
     _setDropdownPosition: function(node) {
-      var boundary, posX, posY, rect;
+      var boundary, offset, posX, posY, rect;
       if (this.options.showAtCaret) {
-        boundary = document.createRange();
+        boundary = this.document[0].createRange();
         boundary.setStart(node, this.start);
         boundary.collapse(true);
         rect = boundary.getClientRects()[0];
-        posX = rect.left + (window.scrollX || window.pageXOffset);
-        posY = rect.top + rect.height + (window.scrollY || window.pageYOffset);
-        this.options.position.of = document;
+        offset = $('iframe').offset();
+        posX = offset.left + rect.left + (this.window[0].scrollX || this.window[0].pageXOffset);
+        posY = offset.top + rect.top + rect.height + (this.window[0].scrollY || this.window[0].pageYOffset);
+        this.options.position.of = this.document[0];
         return this.options.position.at = "left+" + posX + " top+" + posY;
       }
     }
@@ -488,7 +489,7 @@
   })(MentionsBase);
 
   MentionsContenteditable = (function(superClass) {
-    var insertMention, mentionTpl;
+    var mentionTpl;
 
     extend(MentionsContenteditable, superClass);
 
@@ -498,6 +499,8 @@
       this.input = input1;
       this._onSelect = bind(this._onSelect, this);
       this._addMention = bind(this._addMention, this);
+      this.elDocument = this.input[0].ownerDocument;
+      this.elWindow = this.elDocument.defaultView;
       this.settings = {
         trigger: '@',
         widget: 'editablecomplete',
@@ -512,7 +515,8 @@
         suffix: this.marker,
         select: this._onSelect,
         source: this.options.source,
-        showAtCaret: this.options.showAtCaret
+        showAtCaret: this.options.showAtCaret,
+        appendTo: $('body')
       }, this.options.autocomplete);
       this.autocomplete = this.input[this.options.widget](options);
       this._setValue(this.input.html());
@@ -523,9 +527,9 @@
       return "<strong data-mention=\"" + mention.uid + "\">" + mention.value + "</strong>";
     };
 
-    insertMention = function(mention, pos, suffix) {
+    MentionsContenteditable.prototype.insertMention = function(mention, pos, suffix) {
       var node, range, selection;
-      selection = window.getSelection();
+      selection = this.elWindow.getSelection();
       node = selection.focusNode;
       range = selection.getRangeAt(0);
       range.setStart(node, pos.start);
@@ -533,7 +537,7 @@
       range.deleteContents();
       range.insertNode(mention);
       if (suffix) {
-        suffix = document.createTextNode(suffix);
+        suffix = this.elDocument.createTextNode(suffix);
         $(suffix).insertAfter(mention);
         range.setStartAfter(suffix);
       } else {
@@ -570,7 +574,7 @@
     MentionsContenteditable.prototype._addMention = function(data) {
       var mention, mentionNode;
       mentionNode = $(mentionTpl(data))[0];
-      mention = insertMention(mentionNode, data.pos, this.marker);
+      mention = this.insertMention(mentionNode, data.pos, this.marker);
       return this._watch(mention);
     };
 
@@ -581,21 +585,23 @@
     };
 
     MentionsContenteditable.prototype._watch = function(mention) {
-      return mention.addEventListener('DOMCharacterDataModified', function(e) {
-        var offset, range, sel, text;
-        if (e.newValue !== e.prevValue) {
-          text = e.target;
-          sel = window.getSelection();
-          offset = sel.focusOffset;
-          $(text).insertBefore(mention);
-          $(mention).remove();
-          range = document.createRange();
-          range.setStart(text, offset);
-          range.collapse(true);
-          sel.removeAllRanges();
-          return sel.addRange(range);
-        }
-      });
+      return mention.addEventListener('DOMCharacterDataModified', (function(_this) {
+        return function(e) {
+          var offset, range, sel, text;
+          if (e.newValue !== e.prevValue) {
+            text = e.target;
+            sel = _this.elWindow.getSelection();
+            offset = sel.focusOffset;
+            $(text).insertBefore(mention);
+            $(mention).remove();
+            range = _this.elDocument.createRange();
+            range.setStart(text, offset);
+            range.collapse(true);
+            sel.removeAllRanges();
+            return sel.addRange(range);
+          }
+        };
+      })(this));
     };
 
     MentionsContenteditable.prototype.update = function() {
