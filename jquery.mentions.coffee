@@ -247,6 +247,8 @@ class MentionsInput extends MentionsBase
         hidden.data(@input.data());
         @input.removeData();
         hidden.appendTo(@container)
+        $.each(@input.data(), (name, value) -> hidden.attr('data-' + name, JSON.stringify(value))
+        );
         @input.removeAttr('name')
         return hidden
 

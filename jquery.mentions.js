@@ -316,6 +316,9 @@
       hidden.data(this.input.data());
       this.input.removeData();
       hidden.appendTo(this.container);
+      $.each(this.input.data(), function(name, value) {
+        return hidden.attr('data-' + name, JSON.stringify(value));
+      });
       this.input.removeAttr('name');
       return hidden;
     };
