@@ -21,5 +21,9 @@
   "homepage": "https://github.com/pratikvasani/jquery-mentions#readme",
   "devDependencies": {
     "coffee-script": "^1.12.5"
+  },
+  "dependencies": {
+    "jquery": "~1.9.1",
+    "jquery-ui": "~1.10.3"
   }
 }
