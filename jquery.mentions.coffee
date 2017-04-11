@@ -4,7 +4,8 @@ if typeof module == "object" && typeof module.exports == "object"
         # looks like a CommonJS environment , use the require syntax to get the dependencies
         $ = require "jquery";
         require "jquery-ui/ui/widgets/autocomplete"
-
+else
+    $ = window.jQuery;
 
 Selection =
     get: (input) ->
