@@ -313,6 +313,8 @@
         type: 'hidden',
         name: this.input.attr('name')
       });
+      hidden.data(this.input.data());
+      this.input.removeData();
       hidden.appendTo(this.container);
       this.input.removeAttr('name');
       return hidden;

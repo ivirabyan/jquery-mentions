@@ -244,6 +244,8 @@ class MentionsInput extends MentionsBase
 
     _createHidden: ->
         hidden = $('<input>', {type: 'hidden', name: @input.attr('name')})
+        hidden.data(@input.data());
+        @input.removeData();
         hidden.appendTo(@container)
         @input.removeAttr('name')
         return hidden
