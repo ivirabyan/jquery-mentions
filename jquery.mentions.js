@@ -313,7 +313,9 @@
         type: 'hidden',
         name: this.input.attr('name')
       });
-      $.each(this.input.data(), function(name, value) {}, hidden.attr('data-' + name, JSON.stringify(value)));
+      $.each(this.input.data(), function(name, value) {
+        return hidden.attr('data-' + name, JSON.stringify(value));
+      });
       this.input.removeData();
       hidden.appendTo(this.container);
       this.input.removeAttr('name');
