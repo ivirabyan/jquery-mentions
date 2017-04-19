@@ -2,3 +2,4 @@
 /node_modules
 /.vs
 /bower_components
+/packages/Microsoft.Net.Compilers.1.3.2

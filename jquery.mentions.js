@@ -314,7 +314,7 @@
         name: this.input.attr('name')
       });
       $.each(this.input.data(), function(name, value) {
-        return hidden.attr('data-' + name, JSON.stringify(value));
+        return hidden.attr("data-" + name.replace(/([a-zA-Z])(?=[A-Z])/g, '$1-').toLowerCase(), JSON.stringify(value));
       });
       this.input.removeData();
       hidden.appendTo(this.container);

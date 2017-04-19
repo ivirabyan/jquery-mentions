@@ -245,7 +245,7 @@ class MentionsInput extends MentionsBase
     _createHidden: ->
         hidden = $('<input>', {type: 'hidden', name: @input.attr('name')});
 
-        $.each(@input.data(), (name, value) ->    hidden.attr('data-' + name, JSON.stringify(value))
+        $.each(@input.data(), (name, value) ->    hidden.attr("data-" + name.replace(/([a-zA-Z])(?=[A-Z])/g, '$1-').toLowerCase(), JSON.stringify(value))
         
         );
         @input.removeData();
