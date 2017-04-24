@@ -8,17 +8,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/pratikvasani/jquery-mentions.git"
+    "url": "git+https://github.com/ivirabyan/jquery-mentions.git"
   },
   "keywords": [
     "jquery-plugin"
   ],
-  "author": "Pratik",
-  "license": "ISC",
+  "author": "Ivan Virabyan",
+  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/pratikvasani/jquery-mentions/issues"
+    "url": "https://github.com/ivirabyan/jquery-mentions/issues"
   },
-  "homepage": "https://github.com/pratikvasani/jquery-mentions#readme",
+  "homepage": "https://github.com/ivirabyan/jquery-mentions#readme",
   "devDependencies": {
     "coffee-script": "^1.12.5"
   },
