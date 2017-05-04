@@ -1,0 +1,29 @@
+{
+  "name": "jquery-mentions",
+  "version": "1.0.1",
+  "description": "Added npm support and CommonJS support",
+  "main": "jquery.mentions.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pratikvasani/jquery-mentions.git"
+  },
+  "keywords": [
+    "jquery-plugin"
+  ],
+  "author": "Pratik",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pratikvasani/jquery-mentions/issues"
+  },
+  "homepage": "https://github.com/pratikvasani/jquery-mentions#readme",
+  "devDependencies": {
+    "coffee-script": "^1.12.5"
+  },
+  "dependencies": {
+    "jquery": "~1.9.1",
+    "jquery-ui": "~1.10.3"
+  }
+}

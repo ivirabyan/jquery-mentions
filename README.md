@@ -1,3 +1,8 @@
+
+Changes
+===============
+This is a modification on top of the existing plugin by ivirabyan/jquery-mentions , I have added support for npm and CommonJS
+
 jquery-mentions
 ===============
 Adds mentioning support to your text fields.

@@ -1,5 +1,11 @@
 namespace = "mentionsInput"
 
+if typeof module == "object" && typeof module.exports == "object"
+        # looks like a CommonJS environment , use the require syntax to get the dependencies
+        $ = require "jquery";
+        require "jquery-ui/ui/widgets/autocomplete"
+else
+    $ = window.jQuery;
 
 Selection =
     get: (input) ->
@@ -237,8 +243,14 @@ class MentionsInput extends MentionsBase
         @_updateValue()
 
     _createHidden: ->
-        hidden = $('<input>', {type: 'hidden', name: @input.attr('name')})
+        hidden = $('<input>', {type: 'hidden', name: @input.attr('name')});
+
+        $.each(@input.data(), (name, value) ->    hidden.attr("data-" + name.replace(/([a-zA-Z])(?=[A-Z])/g, '$1-').toLowerCase(), JSON.stringify(value))
+        
+        );
+        @input.removeData();
         hidden.appendTo(@container)
+       
         @input.removeAttr('name')
         return hidden
 
